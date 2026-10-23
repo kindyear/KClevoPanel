@@ -13,7 +13,11 @@ add(p, 'MediaTemplate', EmbedCab='yes')
 add(p, 'Property', Id='MSIRESTARTMANAGERCONTROL', Value='Disable')
 add(p, 'Property', Id='ARPPRODUCTICON', Value='AppIcon')
 add(p, 'Icon', Id='AppIcon', SourceFile=str(source/'Assets/Monitor.ico'))
-add(p, 'Launch', Condition='Installed OR (VersionNT64 AND VersionNT >= 1000)', Message='Windows 10/11 x64 is required.')
+# MSI intentionally reports VersionNT=603 even on Windows 10 and later.
+# https://learn.microsoft.com/troubleshoot/windows-client/application-management/versionnt-value-for-windows-10-server
+build = add(p, 'Property', Id='OSBUILD')
+add(build, 'RegistrySearch', Id='ReadWindowsBuild', Root='HKLM', Key=r'SOFTWARE\Microsoft\Windows NT\CurrentVersion', Name='CurrentBuildNumber', Type='raw', Bitness='always64')
+add(p, 'Launch', Condition='Installed OR (VersionNT64 AND OSBUILD >= 19041)', Message='Windows 10 build 19041 or Windows 11 x64 is required.')
 local = add(p, 'StandardDirectory', Id='LocalAppDataFolder')
 programs = add(local, 'Directory', Id='UserPrograms', Name='Programs')
 app = add(programs, 'Directory', Id='INSTALLFOLDER', Name='KClevoPanel')
