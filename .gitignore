@@ -25,3 +25,7 @@
 Thumbs.db
 Desktop.ini
 .DS_Store
+
+*.msi
+*.wixpdb
+*.wixobj

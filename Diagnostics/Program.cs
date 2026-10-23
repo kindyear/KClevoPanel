@@ -17,6 +17,8 @@ if (args.Contains("--self-test"))
     Check(CpuMath.Percent(100, 200, 100, 100, 200, 100) is null, "No elapsed time is unavailable");
     Check(CpuMath.Percent(100, 200, 100, 90, 300, 200) is null, "Counter reset is unavailable");
     Check(CpuMath.Percent(100, 200, 100, 400, 300, 200) is null, "Invalid idle delta is unavailable");
+    if (!args.Contains("--portable"))
+    {
     var root = StaticInventory.ReadDll(@"C:\Program Files (x86)\ControlCenter\InsydeDCHU.dll");
     var dchu = StaticInventory.ReadDll(@"C:\Program Files (x86)\ControlCenter\DCHU\InsydeDCHU.dll");
     Check(root.Error is null && root.Exports.Length == 5 && !root.Exports.Contains("SetDCHU_DataEx"), "Root DLL export capabilities");
@@ -28,6 +30,7 @@ if (args.Contains("--self-test"))
     var identity = StaticInventory.ReadFirmwareIdentity();
     Check(identity.Errors.Length == 0 && identity.Model == "COLORFUL X17 AT 23H2" && identity.Bios == "1.07.04TCOLO"
         && identity.Drivers.Any(d => d.Version == "1.0.0.7") && identity.Drivers.Any(d => d.Version == "1.0.40.0"), "Filtered firmware identity preserves all model BIOS and bridge guards");
+    }
     using (var fast = new WindowsTelemetry())
     {
         var first = fast.Read(includeGpu: false);

@@ -7,6 +7,13 @@ string? session = args.Length == 2 ? Path.GetFullPath(args[1]) : null;
 NativePresets? transaction = null;
 try
 {
+    if (args.Length == 1 && args[0] == "--remove-startup")
+    {
+        // MSI maintenance only: no DLL loading or hardware access. Do not touch a portable copy's entry.
+        string executable = Path.Combine(AppContext.BaseDirectory, "KClevoPanel.exe");
+        if (StartupRegistration.IsEnabled(executable)) StartupRegistration.SetEnabled(executable, false);
+        return;
+    }
     if (args.Length == 1 && args[0] is "--inspect" or "--serve")
     {
         using var native = new NativePresets();

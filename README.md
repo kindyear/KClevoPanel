@@ -7,9 +7,9 @@
 为 COLORFUL X17 打造的原生 Windows 设备面板。<br />
 实时监测 · 风扇曲线 · 固件档位 · 托盘速览
 
-**WinUI 3** &nbsp; / &nbsp; **.NET 8** &nbsp; / &nbsp; **Windows 11 · x64** &nbsp; / &nbsp; **v0.13**
+**WinUI 3** &nbsp; / &nbsp; **.NET 8** &nbsp; / &nbsp; **Windows 11 · x64** &nbsp; / &nbsp; **v0.14.0**
 
-[界面预览](#界面预览) · [快速开始](#快速开始) · [风扇控制](#风扇控制) · [开发构建](#开发构建) · [验证记录](docs/validation-v0.11.md)
+[下载安装](https://github.com/kindyear/KClevoPanel/releases/latest) · [CI/CD](https://github.com/kindyear/KClevoPanel/actions) · [界面预览](#界面预览) · [快速开始](#快速开始) · [风扇控制](#风扇控制) · [开发构建](#开发构建) · [验证记录](docs/validation-v0.11.md)
 
 </div>
 
@@ -21,14 +21,20 @@
 
 | 实时监测 | 散热控制 | 日常使用 |
 | :--- | :--- | :--- |
-| CPU、内存、GPU、电池的 60 秒历史 | 自动 / 最大风量 / 自定义 | 点击托盘展开迷你面板 |
-| 温度、频率、功耗与双风扇读数 | CPU / GPU 独立曲线编辑 | 最小化和关闭收进托盘 |
+| CPU、内存、GPU、电池的 60 秒历史 | 自动 / 最大风量 / 自定义 | 托盘左键主窗口 / 右键小面板 |
+| 温度、频率、功耗与双风扇读数 | CPU / GPU 独立曲线编辑 | 最小化收进托盘 · 确认后退出 |
 | 独立采样频率与平滑绘图 | 拖动节点、精确输入、本机草稿 | 深浅主题、可折叠侧栏 |
 | 硬件清单与读取通道诊断 | 30 秒试用、持续应用与恢复 | 安静 / 省电 / 性能 / 娱乐档位 |
 
 ## 界面预览
 
-<img src="docs/images/overview-dark.png" alt="性能概览：CPU、内存、GPU、电池和风扇实时历史" width="100%" />
+<img src="docs/images/fan-curves-dark.png" alt="散热控制：双风扇曲线与当前运行状态" width="100%" />
+
+<details><summary>展开性能概览（包含本次读取状态）</summary>
+
+<img src="docs/images/overview-dark.png" alt="性能概览与本次WMI超时提示" width="100%" />
+
+</details>
 
 <table>
  <tr>
@@ -41,16 +47,22 @@
  </tr>
 </table>
 
-<sub>截图来自 v0.11 实际窗口验证。曲线页展示编辑草稿，不表示正在下发控制；预览使用不透明主题背景，桌面上的 Mica / Acrylic 效果随系统设置变化。</sub>
+<sub>截图来自 v0.14 实际窗口验证。本次预览中系统WMI查询存在超时，概览如实显示部分指标不可用；风扇页已读取本机运行表。截图不表示正在下发控制；预览使用不透明主题背景，桌面上的 Mica / Acrylic 效果随系统设置变化。</sub>
 
 ## 快速开始
 
-1. 获取完整的 Windows x64 发布包，解压到独立目录。
-2. 运行 `KClevoPanel.exe`。自包含发布无需另装 .NET 或 Windows App Runtime。
+1. 到 [Releases](https://github.com/kindyear/KClevoPanel/releases/latest) 下载 MSI 安装，或选择便携 ZIP 解压。MSI 安装到当前用户目录，并添加开始菜单入口。
+2. 启动 `KClevoPanel`。自包含发布无需另装 .NET 或 Windows App Runtime。
 3. 在「性能概览」查看实时状态；在「设置 → 读取通道」核对接口状态。
 4. 需要调节时进入「散热控制」。普通读取、编辑和保存草稿不会写风扇。
 
-请保留完整发布目录内的运行库、Assets 和三个工作进程。真正退出请使用托盘右键菜单；关闭主窗口会将其隐藏到托盘。
+请保留完整发布目录内的运行库、Assets 和三个工作进程。托盘左键打开主窗口，右键打开迷你面板。退出使用迷你面板底部或左侧设置下方的红色「退出程序」，并二次确认。标题栏只有最小化与最大化/还原；最小化继续后台监测。
+
+[托盘与确认框验证](docs/evidence/v0.14/tray-exit.json)与[71项可移植检查记录](docs/evidence/v0.14/portable-tests.txt)。本轮未执行固件写入，托管CI仅验证可移植逻辑和安装流程。
+
+### 托盘与退出 · v0.14
+
+左键快速回到主窗口，右键查看迷你面板。两个红色退出入口共用确认流程，默认选中取消；自定义曲线会话退出时请求独立进程恢复原设置。安装包不自动启动应用，也不默认注册登录启动项。
 
 ### 导航与反馈 · v0.13
 
@@ -156,3 +168,25 @@ docs/             预览、技术说明及验证摘要
 <div align="center">
  <sub>基于 WinUI 3 / Windows App SDK 构建 · 感谢 <a href="https://github.com/jiyeguang25/Clevo-X370-Control-Center">Clevo-X370-Control-Center</a> 提供的研究参考。<br />本项目与 CLEVO、COLORFUL、Microsoft 无隶属或官方背书关系。</sub>
 </div>
+
+## MSI 与自动发布
+
+需要 Windows x64、.NET 8 SDK、Python 3（仅标准库）。WiX 5.0.2 由本地工具清单固定并自动还原。
+
+```powershell
+# 构建应用、MSI、便携ZIP和校验文件
+.\packaging\build-release.ps1
+```
+
+产物在 `artifacts/release`。MSI 按当前用户安装，无需安装驱动。升级或卸载前先确认退出；卸载会清理指向本安装目录的自启动注册，保留设置与曲线草稿。现有便携版请先退出，避免与安装版争用实例。
+
+GitHub Actions 对 main、PR 和手动触发执行构建、71项可移植逻辑检查、MSI安装/卸载验证，不执行硬件命令。UI预览与目标机DLL检查需要本机环境，不冒充已在托管runner执行。Actions固定到commit SHA，构建任务仅有读取权限，标签发布任务才有contents写入权限。
+
+发布新版本：修改 `App/KClevoPanel.App.csproj` 的三段版本号，补充 `docs/releases/v版本号.md`，提交并推送匹配的标签。CI校验标签、构建与安装验证通过后，用GitHub自带令牌自动创建Release并上传MSI、ZIP、SHA256校验文件，无需存储个人PAT。
+
+```powershell
+git tag v0.14.0
+git push origin v0.14.0
+```
+
+源代码公开，当前尚未指定开源许可证。上游研究参考与第三方组件的权利归属不变。

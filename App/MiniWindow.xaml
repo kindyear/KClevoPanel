@@ -40,6 +40,7 @@
     <Button Grid.Column="1" Width="36" Height="38" Padding="0" Click="OpenClicked" ToolTipService.ToolTip="打开主窗口" AutomationProperties.Name="打开主窗口"><FontIcon Glyph="&#xE8A7;" FontSize="16"/></Button>
    </Grid>
    <Grid ColumnSpacing="5"><Grid.ColumnDefinitions><ColumnDefinition Width="Auto"/><ColumnDefinition/></Grid.ColumnDefinitions><FontIcon x:Name="PresetSuccessIcon" Glyph="&#xE73E;" FontSize="12" Foreground="{ThemeResource SystemFillColorSuccessBrush}" Visibility="Collapsed"/><TextBlock Grid.Column="1" x:Name="Thermals" Text="风扇通道连接中" FontSize="11" Foreground="{ThemeResource TextFillColorSecondaryBrush}" TextWrapping="Wrap"/></Grid>
+   <Button x:Name="ExitButton" Click="ExitClicked" HorizontalAlignment="Stretch" HorizontalContentAlignment="Center" Padding="12,8" Foreground="{ThemeResource SystemFillColorCriticalBrush}"><StackPanel Orientation="Horizontal" Spacing="8"><FontIcon Glyph="&#xE7E8;" FontSize="14"/><TextBlock Text="退出程序"/></StackPanel></Button>
   </StackPanel>
  </Border>
 </Window>

@@ -1,4 +1,4 @@
-﻿using Microsoft.UI.Windowing;
+using Microsoft.UI.Windowing;
 using Microsoft.UI.Xaml;
 using Windows.Graphics;
 using KClevoPanel.Core;
@@ -7,6 +7,8 @@ namespace KClevoPanel.App;
 public sealed partial class MiniWindow : Window
 {
     private readonly Action _open;
+    private readonly Action<XamlRoot> _quit;
+    internal bool HoldOpen { get; set; }
     private string? _presetHint;
     private string _fanSummary = "风扇通道连接中";
     public IntPtr Handle { get; }
@@ -20,9 +22,9 @@ public sealed partial class MiniWindow : Window
         => CpuModel.Text == cpuModel && GpuModel.Text == gpuModel && CpuTemperature.Text == cpuTemperature && GpuTemperature.Text == gpuTemperature
         && MainWindow.ProcessorRowAligned(CpuModel, CpuTemperature, CpuGraph, MiniRoot)
         && MainWindow.ProcessorRowAligned(GpuModel, GpuTemperature, GpuGraph, MiniRoot);
-    public MiniWindow(Action open, Action<int> preset)
+    public MiniWindow(Action open, Action<int> preset, Action<XamlRoot> quit)
     {
-        InitializeComponent(); _open = open; MiniPresets.PresetRequested += preset;
+        InitializeComponent(); _open = open; _quit = quit; MiniPresets.PresetRequested += preset;
         SystemBackdrop = new Microsoft.UI.Xaml.Media.DesktopAcrylicBackdrop();
         Title = "KClevoPanel 快速面板";
         Handle = WinRT.Interop.WindowNative.GetWindowHandle(this);
@@ -36,7 +38,7 @@ public sealed partial class MiniWindow : Window
         {
             WindowChrome.ConfigurePopup(Handle);
             DispatcherQueue.TryEnqueue(() => WindowChrome.ConfigurePopup(Handle));
-            if (e.WindowActivationState == WindowActivationState.Deactivated) { foreach (var chart in MiniCharts()) chart.SetActive(false); AppWindow.Hide(); }
+            if (e.WindowActivationState == WindowActivationState.Deactivated && !HoldOpen) { foreach (var chart in MiniCharts()) chart.SetActive(false); AppWindow.Hide(); }
         };
         Closed += (_, _) => { foreach (var chart in MiniCharts()) chart.SetActive(false); };
     }
@@ -47,7 +49,7 @@ public sealed partial class MiniWindow : Window
         // Move first so DPI comes from the taskbar's monitor rather than the main window.
         AppWindow.Move(new PointInt32(area.X, area.Y));
         double scale = GetDpiForWindow(Handle) / 96.0;
-        int width = (int)Math.Round(460 * scale), height = (int)Math.Round(488 * scale);
+        int width = (int)Math.Round(460 * scale), height = (int)Math.Round(536 * scale);
         int x = Math.Clamp(anchor.X + anchor.Width - width, area.X, Math.Max(area.X, area.X + area.Width - width));
         int y = anchor.Y >= area.Y + area.Height ? anchor.Y - height - 8 : anchor.Y + anchor.Height + 8;
         y = Math.Clamp(y, area.Y, Math.Max(area.Y, area.Y + area.Height - height));
@@ -79,6 +81,7 @@ public sealed partial class MiniWindow : Window
         Thermals.Text = _presetHint ?? _fanSummary;
     }
     private IEnumerable<HistoryChart> MiniCharts() => new[] { CpuGraph, MemoryGraph, GpuGraph, BatteryGraph };
+    private void ExitClicked(object sender, RoutedEventArgs e) => _quit(MiniRoot.XamlRoot);
     private void OpenClicked(object sender, RoutedEventArgs e) { AppWindow.Hide(); _open(); }
     internal void SetPreset(PresetState state, bool busy, string? error, string? success = null)
     {

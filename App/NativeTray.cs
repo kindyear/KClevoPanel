@@ -26,7 +26,7 @@ internal sealed class NativeTray : IDisposable
         { DestroyIcon(_icon); throw new InvalidOperationException("无法初始化托盘消息"); }
         _data = new NotifyIconData { Size = (uint)Marshal.SizeOf<NotifyIconData>(), Window = window, Id = IconId,
             Flags = 1 | 2 | 4 | 0x80, Callback = CallbackMessage, Icon = _icon,
-            Tip = "KClevoPanel · 点击查看实时状态", Info = "", InfoTitle = "" };
+            Tip = "KClevoPanel · 左键打开主窗口 · 右键查看小面板", Info = "", InfoTitle = "" };
         Add();
     }
     private void Add()
@@ -83,6 +83,7 @@ internal sealed class NativeTray : IDisposable
         }
         return DefSubclassProc(window, message, wParam, lParam);
     }
+    internal void SimulateContextClickForSmoke() => SendMessageW(_window, CallbackMessage, IntPtr.Zero, new IntPtr((IconId << 16) | 0x7B));
     internal void SimulatePrimaryClickForSmoke() => SendMessageW(_window, CallbackMessage, IntPtr.Zero, new IntPtr((IconId << 16) | 0x400));
     internal void RequestCloseForSmoke() => SendMessageW(_window, 0x10, IntPtr.Zero, IntPtr.Zero);
     internal void RequestMinimizeForSmoke() => SendMessageW(_window, 0x112, new IntPtr(0xF020), IntPtr.Zero);

@@ -19,6 +19,8 @@ public sealed partial class MainWindow
         {
             if (Environment.GetCommandLineArgs().Contains("--settings-preview"))
             { await VerifySettingsPagesAsync(path); return; }
+            if (Environment.GetCommandLineArgs().Contains("--exit-preview"))
+            { await VerifyExitUiAsync(path); return; }
             if (Environment.GetCommandLineArgs().Contains("--navigation-preview"))
             { await VerifyNavigationAsync(path); return; }
             int activationsBefore = _activationRequests;
@@ -109,8 +111,10 @@ public sealed partial class MainWindow
             await Task.Delay(1200); await RefreshAsync(false);
             if (_snapshot.CapturedAt <= beforeHiddenRead) throw new InvalidOperationException("后台采样未继续");
             _tray.SimulatePrimaryClickForSmoke();
+            if (!AppWindow.IsVisible) throw new IOException("托盘左键未打开主窗口");
+            HideToTray(); _tray.SimulateContextClickForSmoke();
             await Task.Delay(600);
-            if (_mini?.IsShown != true) throw new InvalidOperationException("托盘点击未打开小面板");
+            if (_mini?.IsShown != true) throw new InvalidOperationException("托盘右键未打开小面板");
             if (!_mini.ProcessorLabelsMatch(CpuName.Text, GpuName.Text, CpuTemperature.Text, GpuTemperature.Text))
                 throw new InvalidOperationException("托盘CPU/GPU型号、温度与主窗口不一致或排版溢出");
             await File.WriteAllTextAsync(Path.Combine(path,"chrome-info.txt"), WindowChrome.PopupStyleSummary(_mini.Handle));
@@ -298,6 +302,33 @@ public sealed partial class MainWindow
         if (Fans.WriteRequests != 0 || _presetRequests != 0) throw new IOException("页面测试意外请求控制");
         await File.WriteAllTextAsync(Path.Combine(path, "ui-smoke.json"), JsonSerializer.Serialize(new { Passed = true, Scope = "SettingsAndAboutOnly", LightAndDarkThemesVerified = true,
             SettingsAndAboutNavigationVerified = true, SettingsAndAboutResponsiveLayoutVerified = true, SamplingControlsVerified = true, FanFirmwareWriteRequestsInSmoke = Fans.WriteRequests, PresetWriteRequestsInSmoke = _presetRequests }, new JsonSerializerOptions { WriteIndented = true }));
+    }
+    private async Task VerifyExitUiAsync(string path)
+    {
+        ResizeLogical(1100, 940); await Task.Delay(500);
+        HideToTray(); _tray!.SimulatePrimaryClickForSmoke(); await Task.Delay(250);
+        if (!AppWindow.IsVisible) throw new IOException("左键未打开主窗");
+        Navigation.SelectedItem = SettingsItem; await Task.Delay(300); await CaptureMainNativeAsync(path, "settings.png");
+        async Task CancelDialogAsync(XamlRoot root, string imageName, UIElement renderRoot)
+        {
+            var dialog = CreateExitDialog(root); var showing = dialog.ShowAsync(); await Task.Delay(400);
+            await CaptureElementAsync(dialog, path, imageName); dialog.Hide();
+            if (await showing != ContentDialogResult.None || _exiting) throw new IOException("取消退出导致程序退出");
+        }
+        await CancelDialogAsync(Root.XamlRoot, "exit-confirm-main.png", Root);
+        _tray.SimulateContextClickForSmoke(); await Task.Delay(500);
+        if (_mini?.IsShown != true) throw new IOException("右键未打开浮窗");
+        _mini.HoldOpen = true;
+        await CaptureElementAsync(_mini.RenderRoot, path, "mini.png");
+        await CancelDialogAsync(_mini.RenderRoot.XamlRoot, "exit-confirm-mini.png", _mini.RenderRoot);
+        _mini.HoldOpen = false; _mini.AppWindow.Hide();
+        ShowPage("fans");
+        for (int wait = 0; wait < 80 && !Fans.ReadyForSmoke; wait++) await Task.Delay(500);
+        foreach (string page in new[] { "overview", "device", "fans", "about", "channels" }) { ShowPage(page); await Task.Delay(350); await CaptureMainNativeAsync(path, page + ".png"); }
+        Root.RequestedTheme = ElementTheme.Light; ShowPage("fans"); await Task.Delay(400); await CaptureMainNativeAsync(path, "fans-light.png");
+        Root.RequestedTheme = ElementTheme.Dark;
+        if (Fans.WriteRequests != 0 || _presetRequests != 0) throw new IOException("意外控制请求");
+        await File.WriteAllTextAsync(Path.Combine(path, "ui-smoke.json"), JsonSerializer.Serialize(new { Passed = true, Scope = "TrayAndExitConfirmation", TrayLeftOpensMain = true, TrayRightOpensMini = true, BothConfirmationDialogsCancelled = true, FanFirmwareWriteRequestsInSmoke = Fans.WriteRequests, PresetWriteRequestsInSmoke = _presetRequests }));
     }
     private async Task VerifyNavigationAsync(string path)
     {

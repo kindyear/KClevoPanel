@@ -73,16 +73,16 @@ public sealed partial class MainWindow : Window
         try
         {
             _tray = new NativeTray(WinRT.Interop.WindowNative.GetWindowHandle(this));
-            _tray.PrimaryClick = ToggleMini;
-            _tray.ContextClick = () => { ShowMini(); if (_mini is not null) _tray.ShowMenu(_mini.Handle); };
-            _tray.OpenMain = ShowMain; _tray.TogglePause = TogglePause; _tray.Quit = ExitApplication;
+            _tray.PrimaryClick = ShowMain;
+            _tray.ContextClick = ToggleMini;
+            _tray.OpenMain = ShowMain; _tray.TogglePause = TogglePause; _tray.Quit = () => _ = ConfirmExitAsync(Root.XamlRoot);
             _tray.IsPaused = () => _paused;
             _tray.MinimizeRequested = HideToTray;
             _tray.PowerTransition = Fans.StopForPowerChange;
-            if (!_tray.IsAdded) _trayError = "托盘暂不可用，关闭窗口将退出程序。";
+            if (!_tray.IsAdded) _trayError = "托盘暂不可用，请使用侧栏退出程序。";
         }
         catch (Exception e) { _trayError = "托盘初始化失败：" + e.Message; }
-        AppWindow.Closing += (_, e) => { if (!_exiting && _tray?.IsAdded == true) { e.Cancel = true; HideToTray(); } };
+        AppWindow.Closing += (_, e) => { if (!_exiting) { e.Cancel = true; if (_tray?.IsAdded == true) HideToTray(); } };
         Navigation.SelectedItem = OverviewItem;
         _timer.Tick += async (_, _) => await RefreshAsync(false);
         _thermalTimer.Tick += async (_, _) => await RefreshThermalAsync(false);
@@ -336,11 +336,29 @@ public sealed partial class MainWindow : Window
     private void ShowMini()
     {
         if (_tray is null) return;
-        _mini ??= new MiniWindow(ShowMain, ChangePreset);
+        _mini ??= new MiniWindow(ShowMain, ChangePreset, root => _ = ConfirmExitAsync(root));
         _mini.SetTheme(Root.RequestedTheme);
         _mini.SetPreset(Fans.TrialInProgress ? _presetState with { Available = false, Status = "曲线试用期间暂不切换档位" } : _presetState, _presetChanging, _presetError, _presetState.Mode == _presetSuccessMode && DateTimeOffset.Now < _presetSuccessUntil ? _presetSuccess : null);
         if (_snapshot is { } s) _mini.Paint(s, _cpuModel, _cpuHistory, _memoryHistory, _gpuHistory, _batteryHistory, _paused);
         _mini.ShowAt(_tray.Anchor());
+    }
+    private bool _exitConfirmationOpen;
+    private async void NavigationInvoked(NavigationView sender, NavigationViewItemInvokedEventArgs e)
+    { if (e.InvokedItemContainer == ExitItem) await ConfirmExitAsync(Root.XamlRoot); }
+    private ContentDialog CreateExitDialog(XamlRoot root)
+    {
+        var dialog = new ContentDialog { XamlRoot = root, Title = "退出 KClevoPanel？", Content = "退出后将停止监测。正在运行的自定义风扇会话将请求恢复进入前的设置。", PrimaryButtonText = "退出程序", CloseButtonText = "取消", DefaultButton = ContentDialogButton.Close, RequestedTheme = Root.RequestedTheme };
+        dialog.Resources["AccentFillColorDefaultBrush"] = new Microsoft.UI.Xaml.Media.SolidColorBrush(Windows.UI.Color.FromArgb(255, 196, 43, 28));
+        dialog.Resources["AccentFillColorSecondaryBrush"] = new Microsoft.UI.Xaml.Media.SolidColorBrush(Windows.UI.Color.FromArgb(255, 180, 40, 25));
+        dialog.Resources["TextOnAccentFillColorPrimaryBrush"] = new Microsoft.UI.Xaml.Media.SolidColorBrush(Microsoft.UI.Colors.White);
+        return dialog;
+    }
+    private async Task ConfirmExitAsync(XamlRoot root)
+    {
+        if (_exitConfirmationOpen || _exiting) return;
+        _exitConfirmationOpen = true; if (_mini is not null) _mini.HoldOpen = true;
+        try { if (await CreateExitDialog(root).ShowAsync() == ContentDialogResult.Primary) ExitApplication(); }
+        finally { _exitConfirmationOpen = false; if (_mini is not null) _mini.HoldOpen = false; }
     }
     private void ExitApplication()
     {

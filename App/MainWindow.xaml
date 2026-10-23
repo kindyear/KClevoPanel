@@ -18,13 +18,13 @@
    <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Top">
     <Button Style="{StaticResource CaptionButtonStyle}" Click="MinimizeClicked" ToolTipService.ToolTip="最小化"><FontIcon Glyph="&#xE921;" FontSize="10"/></Button>
     <Button Style="{StaticResource CaptionButtonStyle}" Click="MaximizeClicked" ToolTipService.ToolTip="最大化 / 还原"><FontIcon Glyph="&#xE922;" FontSize="10"/></Button>
-    <Button Style="{StaticResource CaptionButtonStyle}" Click="HideClicked" ToolTipService.ToolTip="收起到托盘"><FontIcon Glyph="&#xE8BB;" FontSize="12"/></Button>
+
    </StackPanel>
   </Grid>
   <NavigationView x:Name="Navigation" Grid.Row="1" IsBackButtonVisible="Collapsed" IsSettingsVisible="False"
-     PaneDisplayMode="Left" OpenPaneLength="220" CompactPaneLength="48" IsPaneOpen="True" IsPaneToggleButtonVisible="True" PaneOpening="PaneOpening" PaneClosing="PaneClosing" SelectionChanged="NavigationChanged">
+     PaneDisplayMode="Left" OpenPaneLength="220" CompactPaneLength="48" IsPaneOpen="True" IsPaneToggleButtonVisible="True" PaneOpening="PaneOpening" PaneClosing="PaneClosing" SelectionChanged="NavigationChanged" ItemInvoked="NavigationInvoked">
    <NavigationView.Resources><SolidColorBrush x:Key="NavigationViewContentBackground" Color="Transparent"/></NavigationView.Resources><NavigationView.PaneHeader><StackPanel x:Name="SidebarBrand" Margin="16,12,16,24" Spacing="6"><TextBlock Text="设备中心" Style="{ThemeResource SubtitleTextBlockStyle}"/><TextBlock Text="COLORFUL X17" Style="{ThemeResource CaptionTextBlockStyle}" Foreground="{ThemeResource TextFillColorSecondaryBrush}"/></StackPanel></NavigationView.PaneHeader>
-   <NavigationView.FooterMenuItems><NavigationViewItem x:Name="SettingsItem" Content="设置" Tag="settings" Icon="Setting"/></NavigationView.FooterMenuItems>
+   <NavigationView.FooterMenuItems><NavigationViewItem x:Name="SettingsItem" Content="设置" Tag="settings" Icon="Setting"/><NavigationViewItem x:Name="ExitItem" Content="退出程序" SelectsOnInvoked="False" Foreground="{ThemeResource SystemFillColorCriticalBrush}"><NavigationViewItem.Icon><FontIcon Glyph="&#xE7E8;"/></NavigationViewItem.Icon></NavigationViewItem></NavigationView.FooterMenuItems>
    <NavigationView.MenuItems>
     <NavigationViewItem x:Name="OverviewItem" Content="性能概览" Tag="overview" Icon="Home"/>
     <NavigationViewItem Content="设备信息" Tag="device" Icon="AllApps"/>
