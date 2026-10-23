@@ -10,7 +10,7 @@ try {
     if($taskVersion -notmatch '^\d+\.\d+\.\d+$'){throw 'Expected three-part release version'}
     if(!$SkipBuild){ & .\build.ps1 -Dotnet $Dotnet -Destination $PublishDirectory }
     foreach($taskExe in @('KClevoPanel.exe','KClevoPanel.TelemetryWorker.exe','KClevoPanel.PresetWorker.exe','KClevoPanel.FanWorker.exe')){if(!(Test-Path (Join-Path $PublishDirectory $taskExe))){throw "Missing $taskExe"}}
-    Copy-Item README.md $PublishDirectory
+    Copy-Item README.md,LICENSE,DEVELOPMENT.md $PublishDirectory
     $taskDocs=Join-Path $PublishDirectory 'docs'
     New-Item -ItemType Directory $taskDocs -Force|Out-Null
     Copy-Item (Join-Path $taskRoot 'docs\*') $taskDocs -Recurse -Force

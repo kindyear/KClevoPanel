@@ -1,192 +1,42 @@
 <div align="center">
 
-<img src="docs/images/banner.svg" alt="KClevoPanel — Your hardware. A clearer view." width="100%" />
+<img src="docs/images/banner.svg" alt="KClevoPanel" width="100%" />
 
-### 看见每一次负载，调节每一份风量。
+**为 Clevo 蓝天模具的七彩虹 X17 笔记本打造的原生 Windows 控制面板。**
 
-为 COLORFUL X17 打造的原生 Windows 设备面板。<br />
-实时监测 · 风扇曲线 · 固件档位 · 托盘速览
-
-**WinUI 3** &nbsp; / &nbsp; **.NET 8** &nbsp; / &nbsp; **Windows 11 · x64** &nbsp; / &nbsp; **v0.14.0**
-
-[下载安装](https://github.com/kindyear/KClevoPanel/releases/latest) · [CI/CD](https://github.com/kindyear/KClevoPanel/actions) · [界面预览](#界面预览) · [快速开始](#快速开始) · [风扇控制](#风扇控制) · [开发构建](#开发构建) · [验证记录](docs/validation-v0.11.md)
+[下载安装](https://github.com/kindyear/KClevoPanel/releases/latest) · [开发文档](DEVELOPMENT.md) · [MIT License](LICENSE)
 
 </div>
 
----
+## 主要功能
 
-## 一眼掌握设备状态
-
-用熟悉的 Windows 视觉语言，把监测、散热和设备信息放进一个面板。Mica 主窗口、Acrylic 托盘面板、浅色与深色主题，以及按实际时间滚动的网格折线图。
-
-| 实时监测 | 散热控制 | 日常使用 |
-| :--- | :--- | :--- |
-| CPU、内存、GPU、电池的 60 秒历史 | 自动 / 最大风量 / 自定义 | 托盘左键主窗口 / 右键小面板 |
-| 温度、频率、功耗与双风扇读数 | CPU / GPU 独立曲线编辑 | 最小化收进托盘 · 确认后退出 |
-| 独立采样频率与平滑绘图 | 拖动节点、精确输入、本机草稿 | 深浅主题、可折叠侧栏 |
-| 硬件清单与读取通道诊断 | 30 秒试用、持续应用与恢复 | 安静 / 省电 / 性能 / 娱乐档位 |
+- **实时监测**：CPU、内存、GPU、电池，以及温度、功耗和双风扇转速。
+- **散热控制**：自动、最大风量与自定义曲线，支持 CPU / GPU 独立调整、试用和恢复。
+- **性能档位**：安静、省电、性能、娱乐四档固件模式。
+- **托盘速览**：左键打开主窗口，右键打开小面板；两个退出入口均有确认提示。
+- **原生体验**：WinUI 3、深浅主题、设备信息、可选开机自启动和单实例运行。
 
 ## 界面预览
 
-<img src="docs/images/fan-curves-dark.png" alt="散热控制：双风扇曲线与当前运行状态" width="100%" />
+<table><tr>
+<td width="70%"><img src="docs/images/fan-curves-dark.png" alt="主窗口与风扇曲线" /></td>
+<td width="30%" valign="top"><img src="docs/images/tray-panel.png" alt="托盘实时小面板" /></td>
+</tr></table>
 
-<details><summary>展开性能概览（包含本次读取状态）</summary>
+## 兼容性
 
-<img src="docs/images/overview-dark.png" alt="性能概览与本次WMI超时提示" width="100%" />
+目前仅在 **七彩虹 COLORFUL X17 AT 23H2（i7-13650HX / RTX 4060 Laptop，Windows 11 x64）** 上验证。
 
-</details>
+其他使用相似 Clevo 蓝天模具的型号或许也能通用，但**不保证兼容性**；控制功能仍受设备校验限制。需要保留本机已有的 ACPI 桥接驱动，本项目不包含或安装原厂驱动、DLL。
 
-<table>
- <tr>
-  <td width="50%"><img src="docs/images/fan-curves-dark.png" alt="深色主题下的双风扇曲线编辑器" /><p align="center"><b>散热控制 · 深色</b></p></td>
-  <td width="50%"><img src="docs/images/fan-curves-light.png" alt="浅色主题下的双风扇曲线编辑器" /><p align="center"><b>散热控制 · 浅色</b></p></td>
- </tr>
- <tr>
-  <td><img src="docs/images/hardware-dark.png" alt="设备信息页的硬件卡片" /><p align="center"><b>设备信息</b></p></td>
-  <td align="center"><img src="docs/images/tray-panel.png" alt="托盘迷你监测面板" width="340" /><p><b>托盘速览</b></p></td>
- </tr>
-</table>
+## 开始使用
 
-<sub>截图来自 v0.14 实际窗口验证。本次预览中系统WMI查询存在超时，概览如实显示部分指标不可用；风扇页已读取本机运行表。截图不表示正在下发控制；预览使用不透明主题背景，桌面上的 Mica / Acrylic 效果随系统设置变化。</sub>
+1. 从 [Releases](https://github.com/kindyear/KClevoPanel/releases/latest) 下载 **MSI 安装包**，或解压 **便携 ZIP**。
+2. 启动应用，查看实时状态；自启动可在设置中开启。
+3. 退出请使用侧栏或托盘小面板中的红色「退出程序」，并确认。升级、卸载前请先退出。
 
-## 快速开始
+自定义风扇曲线在程序运行期间保持，退出时请求恢复原设置。请避免与原厂软件同时控制；系统故障下不能保证恢复。安装包暂未签名。
 
-1. 到 [Releases](https://github.com/kindyear/KClevoPanel/releases/latest) 下载 MSI 安装，或选择便携 ZIP 解压。MSI 安装到当前用户目录，并添加开始菜单入口。
-2. 启动 `KClevoPanel`。自包含发布无需另装 .NET 或 Windows App Runtime。
-3. 在「性能概览」查看实时状态；在「设置 → 读取通道」核对接口状态。
-4. 需要调节时进入「散热控制」。普通读取、编辑和保存草稿不会写风扇。
+## 开源许可
 
-请保留完整发布目录内的运行库、Assets 和三个工作进程。托盘左键打开主窗口，右键打开迷你面板。退出使用迷你面板底部或左侧设置下方的红色「退出程序」，并二次确认。标题栏只有最小化与最大化/还原；最小化继续后台监测。
-
-[托盘与确认框验证](docs/evidence/v0.14/tray-exit.json)与[71项可移植检查记录](docs/evidence/v0.14/portable-tests.txt)。本轮未执行固件写入，托管CI仅验证可移植逻辑和安装流程。
-
-### 托盘与退出 · v0.14
-
-左键快速回到主窗口，右键查看迷你面板。两个红色退出入口共用确认流程，默认选中取消；自定义曲线会话退出时请求独立进程恢复原设置。安装包不自动启动应用，也不默认注册登录启动项。
-
-### 导航与反馈 · v0.13
-
-三个监测页面统一标题区刷新入口，散热页的切换提示与加载状态移至上方。读取通道在设置中以独立页面打开，所有页面加入遵循系统动画偏好的过渡。[更新与验证说明](docs/release-v0.13.md)。
-
-### 设置与关于 · v0.12.1
-
-[更新与验证说明](docs/release-v0.12.1.md)。设置按个性化、启动与后台、数据监测、诊断与应用分组。采样选项共用卡片，诊断默认折叠；窄窗口中控件自动移至说明下方。关于页展示应用标识、真实版本与适配设备，技术致谢折叠收纳，功能卡片随窗口切换单列。
-
-### 启动与后台 · v0.12
-
-在「设置 → 启动与后台」开启**开机自启动**，登录 Windows 后进入托盘。默认关闭，无需管理员权限；不自动应用性能档位或风扇曲线。移动程序目录后请重新开启，系统若禁用启动项可到任务管理器检查。
-
-同一 Windows 用户和会话内只运行一个本版实例。手动重复启动会打开已有窗口；重复的后台自启动静默退出。使用命名互斥量与通知事件，进程异常退出后可重新启动，不按同名进程进行强制结束。旧版程序尚无此保护，请先退出旧版。
-
-加载方面提前建立 CPU 计数基线，设备信息使用最多两路并行查询，并优先显示基础指标。固件身份、驱动与 DLL 校验保持不变；接口首次初始化仍可能需要等待。
-
-### 当前适配
-
-| 项目 | 已验证配置 |
-| :--- | :--- |
-| 设备 | COLORFUL X17 AT 23H2 |
-| 处理器 / 显卡 | Intel Core i7-13650HX / NVIDIA RTX 4060 Laptop GPU |
-| 系统 | Windows 11 x64 |
-| BIOS | Insyde `1.07.04TCOLO` |
-| ACPI 桥驱动 | `CLV0001` · 1.0.0.7 / `CLV0002` · 1.0.40.0 |
-
-**这是针对指定设备的适配项目，目前不声明支持全部 CLEVO / COLORFUL 笔记本。** 控制接口会检查机型、BIOS、驱动和 DLL 身份。需要本机已安装的桥驱动与接口库，但无需原厂客户端进程运行；仓库不包含原厂 DLL，也不安装驱动。
-
-## 风扇控制
-
-两路风扇分别编辑。首尾节点读取自固件并锁定，中间节点保持温度、占空比单调，占空比最低 30%。实线表示编辑曲线，虚线表示固件运行表。
-
-| 操作 | 行为 | 持续时间 |
-| :--- | :--- | :--- |
-| 自动 | 交由固件调速 | 退出后不主动撤销 |
-| 最大风量 | 切换已核对的固件最大模式 | 退出后不主动撤销 |
-| 试用 30 秒 | 应用草稿并核对两路节点 | 到期恢复，可转为保持 |
-| 应用曲线 / 自定义 | 保持当前曲线 | 本次程序运行期间 |
-| 停止并恢复 | 还原进入前的曲线与风扇模式 | 恢复后读回核对 |
-
-自定义写入前会保存基线并启动独立恢复进程。应用退出、心跳超过 10 秒未更新、异常温度 / 转速、采样中断或外部设置覆盖时尝试恢复；睡眠 / 唤醒通知也会请求恢复。收进托盘继续保持，下一次启动不会自动应用草稿。
-
-> **控制边界**：不要同时使用原厂或其他程序改写风扇。恢复进程无法保证在断电、内核挂起等系统故障下执行；恢复未确认时阻止后续控制。真实睡眠 / 唤醒和数小时高负载尚未完成实测。偏移、强冷 / 除尘和开机自动应用暂未开放。
-
-四档按钮仅调整已核对的固件性能档位，尚未复刻原厂预设中的全部 Windows 电源、GPU 和其他联动。协议与限制见[技术说明](docs/technical-notes.md)。
-
-当前版本的[启动与加载验证](docs/release-v0.12.md)包含77项自动检查、跨进程重复启动检查和本次加载计时。
-
-## 验证与本地数据
-
-v0.11 在目标机完成了小幅曲线写入、30 秒到期恢复、最大风量、超过 40 秒持续控制及心跳中断恢复。最大风量时两路占空比达到 100%，转速读数约为 **6956 / 6824 RPM**；测试后原节点与设置 token 均匹配基线。转速使用原厂公式换算，未通过外部仪器校准。
-
-- [实机验证摘要](docs/evidence/v0.11/summary.json)：前后曲线、设置比较与心跳测试结果。
-- [76 项自动检查](docs/evidence/v0.11/self-tests.txt)：协议布局、前置条件、故障恢复与生命周期。
-- [窗口验证摘要](docs/evidence/v0.11/ui-smoke.json)：界面与托盘检查，风扇及性能写入请求均为 0。
-- [完整验证说明](docs/validation-v0.11.md)：修正过程、结果与未验证范围。
-
-设置、曲线草稿和事务记录保存在 `%LOCALAPPDATA%\KClevoPanel`。不联网上传；仅在设置中开启时注册当前用户的登录启动项。普通运行不会自动截图或保存连续遥测。NVIDIA 监测可能唤醒独显，缺失指标显示不可用。
-
-## 开发构建
-
-需要 Windows x64、.NET 8 SDK，以及 NuGet 依赖恢复。`global.json` 指定 SDK 8.0.400，允许通过 `latestFeature` 选择同主次版本的较新 feature band；WinUI 3 与 Windows SDK BuildTools 版本已固定在项目中。
-
-```powershell
-# 在仓库根目录构建全部组件
-.\build.ps1
-
-# 指定 SDK 与发布目录
-.\build.ps1 -Dotnet 'C:\path\to\dotnet.exe' -Destination '.\publish'
-
-# 纯逻辑自动检查，不下发硬件命令
-dotnet run --project .\Diagnostics\KClevoPanel.Diagnostics.csproj -- --self-test
-```
-
-默认发布到仓库同级的 `KClevoPanel-Windows-x64`，中间产物保存在 `work/build`。可通过环境变量 `X17BuildRoot` 修改中间产物目录。
-
-```powershell
-# 在发布目录进行只读诊断
-.\KClevoPanel.FanWorker.exe --inspect
-.\KClevoPanel.PresetWorker.exe --inspect
-
-# 打开实际窗口，执行禁止控制写入的开发验证并保存预览
-.\KClevoPanel.exe --smoke-test C:\absolute\output
-```
-
-### 代码导航
-
-```text
-App/              WinUI 3 窗口、图表、设置与托盘
-Core/             数据模型、曲线协议、事务及进程客户端
-TelemetryWorker/  温度与风扇只读采集
-PresetWorker/     固件性能档位与事务日志
-FanWorker/        风扇模式、曲线及独立恢复进程
-Diagnostics/      协议与逻辑自动检查
-docs/             预览、技术说明及验证摘要
-```
-
-移植到其他机型前，请先核对接口 ABI、命令分支、缓冲区和目标设备条件，建立只读证据，再进行受控验证。请勿通过删除身份检查或猜测命令编号来扩大适配范围。
-
----
-
-<div align="center">
- <sub>基于 WinUI 3 / Windows App SDK 构建 · 感谢 <a href="https://github.com/jiyeguang25/Clevo-X370-Control-Center">Clevo-X370-Control-Center</a> 提供的研究参考。<br />本项目与 CLEVO、COLORFUL、Microsoft 无隶属或官方背书关系。</sub>
-</div>
-
-## MSI 与自动发布
-
-需要 Windows x64、.NET 8 SDK、Python 3（仅标准库）。WiX 5.0.2 由本地工具清单固定并自动还原。
-
-```powershell
-# 构建应用、MSI、便携ZIP和校验文件
-.\packaging\build-release.ps1
-```
-
-产物在 `artifacts/release`。MSI 按当前用户安装，无需安装驱动。升级或卸载前先确认退出；卸载会清理指向本安装目录的自启动注册，保留设置与曲线草稿。现有便携版请先退出，避免与安装版争用实例。
-
-GitHub Actions 对 main、PR 和手动触发执行构建、71项可移植逻辑检查、MSI安装/卸载验证，不执行硬件命令。UI预览与目标机DLL检查需要本机环境，不冒充已在托管runner执行。Actions固定到commit SHA，构建任务仅有读取权限，标签发布任务才有contents写入权限。
-
-发布新版本：修改 `App/KClevoPanel.App.csproj` 的三段版本号，补充 `docs/releases/v版本号.md`，提交并推送匹配的标签。CI校验标签、构建与安装验证通过后，用GitHub自带令牌自动创建Release并上传MSI、ZIP、SHA256校验文件，无需存储个人PAT。
-
-```powershell
-git tag v0.14.0
-git push origin v0.14.0
-```
-
-源代码公开，当前尚未指定开源许可证。上游研究参考与第三方组件的权利归属不变。
+采用 [MIT License](LICENSE)。感谢 [Clevo-X370-Control-Center](https://github.com/jiyeguang25/Clevo-X370-Control-Center) 提供的公开研究参考。

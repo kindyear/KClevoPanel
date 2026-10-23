@@ -31,7 +31,6 @@ jobs:
         run: |
           $version=([xml](Get-Content App/KClevoPanel.App.csproj -Raw)).Project.PropertyGroup.Version | Where-Object { $_ } | Select-Object -First 1
           if($env:TAG -ne "v$version"){throw 'Tag and app version must match'}
-          if(!(Test-Path "docs/releases/$($env:TAG).md")){throw 'Release notes are required'}
       - name: Portable protocol and logic tests
         shell: pwsh
         run: |
@@ -76,5 +75,5 @@ jobs:
           TAG: ${{ github.ref_name }}
         run: |
           $files=(Get-ChildItem release -File).FullName
-          gh release create $env:TAG @files --verify-tag --title "KClevoPanel $env:TAG" --notes-file "docs/releases/$($env:TAG).md"
+          gh release create $env:TAG @files --verify-tag --title "KClevoPanel $env:TAG" --notes-file ".github/RELEASE_TEMPLATE.md"
           if($LASTEXITCODE -ne 0){exit $LASTEXITCODE}
