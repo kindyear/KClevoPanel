@@ -17,6 +17,8 @@ public sealed partial class MainWindow
         Directory.CreateDirectory(path);
         try
         {
+            if (Environment.GetCommandLineArgs().Contains("--settings-preview"))
+            { await VerifySettingsPagesAsync(path); return; }
             int activationsBefore = _activationRequests;
             async Task DuplicateAsync(bool background)
             {
@@ -199,6 +201,14 @@ public sealed partial class MainWindow
             await CaptureMainNativeAsync(path, "settings-dark.png");
             ThemeChooser.SelectedIndex = 1; await Task.Delay(300);
             await CaptureMainNativeAsync(path, "settings-light.png");
+            ResizeLogical(820, 940); await Task.Delay(400);
+            await CaptureMainNativeAsync(path, "settings-narrow.png");
+            foreach (var control in new FrameworkElement[] { ThemeChooser, StartupToggle, SystemFrequencyChooser, ThermalFrequencyChooser })
+            {
+                var point = control.TransformToVisual(SettingsPanel).TransformPoint(new());
+                if (point.X < 0 || point.X + control.ActualWidth > SettingsPanel.ActualWidth + 1) throw new IOException("设置控件在窄窗口中溢出");
+            }
+            ResizeLogical(1100, 940); await Task.Delay(300);
             ThemeChooser.SelectedIndex = 2;
             ChannelExpander.IsExpanded = true; await Task.Delay(300);
             ChannelExpander.StartBringIntoView(new BringIntoViewOptions { AnimationDesired = false });
@@ -208,6 +218,10 @@ public sealed partial class MainWindow
             await CaptureMainNativeAsync(path, "about-dark.png");
             ThemeChooser.SelectedIndex = 1; await Task.Delay(300);
             await CaptureMainNativeAsync(path, "about-light.png");
+            ResizeLogical(820, 940); await Task.Delay(400);
+            if (Grid.GetRow((FrameworkElement)AboutFeatures.Children[1]) != 1) throw new IOException("关于页面未切换为单列");
+            await CaptureMainNativeAsync(path, "about-narrow.png");
+            ResizeLogical(1100, 940); await Task.Delay(300);
             BackToSettingsClicked(this, new RoutedEventArgs());
             if (_page != "settings") throw new InvalidOperationException("关于返回设置失败");
             Navigation.IsPaneOpen = false; await Task.Delay(500);
@@ -235,6 +249,7 @@ public sealed partial class MainWindow
                 Hardware = hardware, HardwareLoadedOnDemand = true, HardwareResponsiveColumnsVerified = true,
                 HardwareCardGapsVerified = true,
                 SettingsAndAboutNavigationVerified = true, SidebarCollapseExpandVerified = true,
+                SettingsAndAboutResponsiveLayoutVerified = true,
                 IndependentSamplingIntervalsVerified = true, SettingsSerializationAndValidationVerified = true,
                 FanCurveReadAndEditVerified = true, FanModeControlsVerified = true, FanFirmwareWriteRequestsInSmoke = Fans.WriteRequests,
                 Preset = _presetState, PresetWriteRequestsInSmoke = _presetRequests,
@@ -251,6 +266,37 @@ public sealed partial class MainWindow
         catch (Exception e)
         { await File.WriteAllTextAsync(Path.Combine(path, "ui-smoke.json"), JsonSerializer.Serialize(new { Passed = false, Error = e.ToString(), DchuState = _firmware.State, ThermalCompleted = _thermalCompleted, ThermalReading = _thermalReading, Preset = _presetState, PresetWriteRequestsInSmoke = _presetRequests, Width = Root.ActualWidth, Scale = Root.XamlRoot.RasterizationScale })); }
         finally { ExitApplication(); }
+    }
+    private async Task VerifySettingsPagesAsync(string path)
+    {
+        ResizeLogical(1100, 940); Navigation.SelectedItem = SettingsItem;
+        foreach (int theme in new[] { 2, 1 })
+        {
+            ThemeChooser.SelectedIndex = theme;
+            if (Root.RequestedTheme != (theme == 2 ? ElementTheme.Dark : ElementTheme.Light)) throw new IOException("主题未生效");
+            string suffix = theme == 2 ? "dark" : "light";
+            ShowPage("settings"); await Task.Delay(400);
+            await CaptureMainNativeAsync(path, "settings-" + suffix + ".png");
+            AboutClicked(this, new RoutedEventArgs()); await Task.Delay(300);
+            if (_page != "about" || AboutPanel.Visibility != Visibility.Visible || !AboutVersion.Text.Contains("0.12.1")) throw new IOException("关于导航或版本异常");
+            await CaptureMainNativeAsync(path, "about-" + suffix + ".png");
+            ResizeLogical(820, 940); await Task.Delay(300);
+            if (Grid.GetRow((FrameworkElement)AboutFeatures.Children[1]) != 1) throw new IOException("关于未切换单列");
+            await CaptureMainNativeAsync(path, "about-narrow-" + suffix + ".png");
+            BackToSettingsClicked(this, new RoutedEventArgs()); await Task.Delay(300);
+            foreach (var control in new FrameworkElement[] { ThemeChooser, StartupToggle, SystemFrequencyChooser, ThermalFrequencyChooser })
+            {
+                var point = control.TransformToVisual(SettingsPanel).TransformPoint(new());
+                if (point.X < 0 || point.X + control.ActualWidth > SettingsPanel.ActualWidth + 1) throw new IOException("窄窗口设置控件溢出");
+            }
+            await CaptureMainNativeAsync(path, "settings-narrow-" + suffix + ".png");
+            ResizeLogical(1100, 940); await Task.Delay(300);
+        }
+        SystemFrequencyChooser.SelectedIndex = 3; ThermalFrequencyChooser.SelectedIndex = 1;
+        if (_timer.Interval.TotalMilliseconds != 2000 || _thermalTimer.Interval.TotalMilliseconds != 2000) throw new IOException("采样设置回归失败");
+        if (Fans.WriteRequests != 0 || _presetRequests != 0) throw new IOException("页面测试意外请求控制");
+        await File.WriteAllTextAsync(Path.Combine(path, "ui-smoke.json"), JsonSerializer.Serialize(new { Passed = true, Scope = "SettingsAndAboutOnly", LightAndDarkThemesVerified = true,
+            SettingsAndAboutNavigationVerified = true, SettingsAndAboutResponsiveLayoutVerified = true, SamplingControlsVerified = true, FanFirmwareWriteRequestsInSmoke = Fans.WriteRequests, PresetWriteRequestsInSmoke = _presetRequests }, new JsonSerializerOptions { WriteIndented = true }));
     }
     private async Task CaptureAsync(string directory, string name)
         => await CaptureElementAsync(Root, directory, name);

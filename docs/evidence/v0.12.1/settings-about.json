@@ -1,0 +1,10 @@
+{
+  "Passed": true,
+  "Scope": "SettingsAndAboutOnly",
+  "LightAndDarkThemesVerified": true,
+  "SettingsAndAboutNavigationVerified": true,
+  "SettingsAndAboutResponsiveLayoutVerified": true,
+  "SamplingControlsVerified": true,
+  "FanFirmwareWriteRequestsInSmoke": 0,
+  "PresetWriteRequestsInSmoke": 0
+}

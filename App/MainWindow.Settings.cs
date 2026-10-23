@@ -92,6 +92,21 @@ public sealed partial class MainWindow
     private void PaneClosing(NavigationView sender, object args)
     { if (SidebarBrand is not null) SidebarBrand.Visibility = Visibility.Collapsed; SavePreferences(false); }
     private void AboutClicked(object sender, RoutedEventArgs e) => ShowPage("about");
+    private void SettingsRowSizeChanged(object sender, SizeChangedEventArgs e)
+    {
+        if (sender is not Grid row || row.Children.LastOrDefault() is not Grid control) return;
+        bool narrow = e.NewSize.Width < 560;
+        Grid.SetRow(control, narrow ? 1 : 0); Grid.SetColumn(control, narrow ? 1 : 2);
+        Grid.SetColumnSpan(control, narrow ? 2 : 1);
+        control.HorizontalAlignment = narrow ? HorizontalAlignment.Left : HorizontalAlignment.Right;
+    }
+    private void AboutFeaturesSizeChanged(object sender, SizeChangedEventArgs e)
+    {
+        bool narrow = e.NewSize.Width < 560;
+        var second = (FrameworkElement)AboutFeatures.Children[1];
+        Grid.SetRow(second, narrow ? 1 : 0); Grid.SetColumn(second, narrow ? 0 : 1);
+        AboutFeatures.ColumnDefinitions[1].Width = narrow ? new GridLength(0) : new GridLength(1, GridUnitType.Star);
+    }
     private void BackToSettingsClicked(object sender, RoutedEventArgs e) => ShowPage("settings");
     private void ShowPage(string page)
     {

@@ -1,0 +1,6 @@
+{
+  "Passed": false,
+  "Reason": "Full regression stopped before settings/about at fan page read-only initialization.",
+  "Error": "System.InvalidOperationException: 散热控制页面未完成只读曲线加载\r\n   at KClevoPanel.App.MainWindow.RunSmokeAsync(String directory)",
+  "PresetWriteRequestsInSmoke": 0
+}
