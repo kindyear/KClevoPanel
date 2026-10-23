@@ -28,6 +28,9 @@ public sealed partial class PresetSelector : UserControl
         Indicator.Visibility = _mode.HasValue ? Visibility.Visible : Visibility.Collapsed;
         if (!_mode.HasValue || Track.ActualWidth <= 0) return;
         double width = Math.Max(0, (Track.ActualWidth - 18) / 4), x = _mode.Value * (width + 6);
+        var selected = new[] { Quiet, Saving, Performance, Entertainment }[_mode.Value];
+        if (selected.ActualWidth > 0)
+        { width = selected.ActualWidth; x = selected.TransformToVisual(Track).TransformPoint(new()).X; }
         Indicator.Width = width;
         Slide.X = x;
         if (!animate) return;
@@ -47,9 +50,10 @@ public sealed partial class PresetSelector : UserControl
                 double previous = buttons[i-1].TransformToVisual(Track).TransformPoint(new()).X + buttons[i-1].ActualWidth;
                 if (Math.Abs(left - previous - 6) > 0.5) return false;
             }
-            return buttons.All(b => b.ActualWidth >= 60) && (!_mode.HasValue || Math.Abs(Indicator.Width - buttons[0].ActualWidth) < 0.5);
+            return buttons.All(b => b.ActualWidth >= 60) && (!_mode.HasValue || Math.Abs(Indicator.Width - buttons[_mode.Value].ActualWidth) <= 0.5);
         }
     }
+    internal string LayoutDetailsForSmoke => $"Track={Track.ActualWidth}, Indicator={Indicator.Width}; " + string.Join("; ", new[] { Quiet, Saving, Performance, Entertainment }.Select(b => $"{b.TransformToVisual(Track).TransformPoint(new()).X}:{b.ActualWidth}"));
     private void TrackSizeChanged(object sender, SizeChangedEventArgs e) => PositionIndicator(false);
     private void SegmentClicked(object sender, RoutedEventArgs e)
     { if (sender is Button button && int.TryParse(button.Tag?.ToString(), out int mode) && mode != _mode) PresetRequested?.Invoke(mode); }

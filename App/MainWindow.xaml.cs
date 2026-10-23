@@ -54,6 +54,8 @@ public sealed partial class MainWindow : Window
     }
     public MainWindow()
     {
+        // Prime CPU counters while XAML initializes, instead of waiting a full sampling interval.
+        _ = _telemetry.Read(includeGpu: false);
         InitializeComponent();
         InitializePreferences();
         Fans.ActivityChanged += PaintPreset;
@@ -88,10 +90,11 @@ public sealed partial class MainWindow : Window
             if (_loaded) return;
             _loaded = true;
             _rootLoadedMs = _startup.Elapsed.TotalMilliseconds;
-            _presetTimer.Start(); _ = RefreshPresetAsync();
             if (!_paused) { _timer.Start(); _thermalTimer.Start(); }
             await RefreshAsync(true);
+            _presetTimer.Start(); _ = RefreshPresetAsync();
             string[] args = Environment.GetCommandLineArgs();
+            if (args.Contains("--startup") && !IsSmokeRun && _tray?.IsAdded == true) HideToTray();
             int smoke = Array.IndexOf(args, "--smoke-test");
             if (smoke >= 0 && smoke + 1 < args.Length) await RunSmokeAsync(args[smoke + 1]);
         };
@@ -323,6 +326,8 @@ public sealed partial class MainWindow : Window
         if (((OverlappedPresenter)AppWindow.Presenter).State == OverlappedPresenterState.Minimized) ((OverlappedPresenter)AppWindow.Presenter).Restore();
         AppWindow.Show(); SetChartsActive(true); Activate();
     }
+    private int _activationRequests;
+    internal void ActivateExisting() { if (!_closed) { _activationRequests++; ShowMain(); } }
     private void ToggleMini() { if (_mini?.IsShown == true) _mini.AppWindow.Hide(); else ShowMini(); }
     private void ShowMini()
     {

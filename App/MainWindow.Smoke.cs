@@ -17,6 +17,24 @@ public sealed partial class MainWindow
         Directory.CreateDirectory(path);
         try
         {
+            int activationsBefore = _activationRequests;
+            async Task DuplicateAsync(bool background)
+            {
+                var info = new System.Diagnostics.ProcessStartInfo(Environment.ProcessPath!) { UseShellExecute = false, CreateNoWindow = true };
+                info.ArgumentList.Add("--smoke-test"); info.ArgumentList.Add(path);
+                if (background) info.ArgumentList.Add("--startup");
+                using var duplicate = System.Diagnostics.Process.Start(info)!;
+                using var deadline = new CancellationTokenSource(TimeSpan.FromSeconds(15));
+                await duplicate.WaitForExitAsync(deadline.Token);
+                if (duplicate.ExitCode != 0) throw new IOException("重复启动未正常退出");
+                await Task.Delay(250);
+            }
+            await DuplicateAsync(false);
+            if (_activationRequests <= activationsBefore) throw new IOException("重复启动未通知已有窗口");
+            int afterForeground = _activationRequests;
+            await DuplicateAsync(true);
+            if (_activationRequests != afterForeground) throw new IOException("后台重复启动意外弹出窗口");
+            StartupToggle.IsOn = true; StartupToggle.IsOn = false; // Smoke never writes the user's Run key.
             ResizeLogical(1100, 940);
             await Task.Delay(400);
             bool verifyFeedback = Environment.GetCommandLineArgs().Contains("--verify-preset-feedback");
@@ -94,7 +112,8 @@ public sealed partial class MainWindow
             await File.WriteAllTextAsync(Path.Combine(path,"chrome-info.txt"), WindowChrome.PopupStyleSummary(_mini.Handle));
             if (!WindowChrome.BorderRequestSucceeded(_mini.Handle)) throw new InvalidOperationException("小面板系统边框关闭请求失败");
             if (!WindowChrome.PopupFrameRemoved(_mini.Handle)) throw new InvalidOperationException("小面板经典窗口边框未移除");
-            if (!_mini.PresetLayoutVerifiedForSmoke) throw new InvalidOperationException("小面板档位间距或图标空间异常");
+            for (int layoutWait = 0; layoutWait < 20 && !_mini.PresetLayoutVerifiedForSmoke; layoutWait++) { _mini.RenderRoot.UpdateLayout(); await Task.Delay(100); }
+            if (!_mini.PresetLayoutVerifiedForSmoke) throw new InvalidOperationException("小面板档位间距或图标空间异常：" + _mini.PresetLayoutDetailsForSmoke);
             if (verifyFeedback)
             {
                 _presetSuccess = "提示预览 · 已切换至「性能」";
@@ -200,7 +219,7 @@ public sealed partial class MainWindow
             ThemeChooser.SelectedIndex = 0; Root.RequestedTheme = originalTheme;
             await File.WriteAllTextAsync(Path.Combine(path, "ui-smoke.json"), JsonSerializer.Serialize(new
             {
-                Passed = true, Machine = _machine, Snapshot = _snapshot,
+                Passed = true, SingleInstanceActivationVerified = true, BackgroundDuplicateStaysSilentVerified = true, StartupToggleUiVerifiedWithoutRegistration = true, Machine = _machine, Snapshot = _snapshot,
                 CpuText = CpuValue.Text, GpuText = GpuValue.Text, MemoryText = MemoryValue.Text,
                 BatteryText = BatteryValue.Text, CpuTemperatureText = CpuTemperature.Text,
                 CpuFanText = CpuFanValue.Text, GpuFanText = GpuFanValue.Text,

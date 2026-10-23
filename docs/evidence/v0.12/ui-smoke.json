@@ -1,0 +1,25 @@
+{
+  "Passed": true,
+  "SingleInstanceActivationVerified": true,
+  "BackgroundDuplicateStaysSilentVerified": true,
+  "StartupToggleUiVerifiedWithoutRegistration": true,
+  "FanFirmwareWriteRequestsInSmoke": 0,
+  "PresetWriteRequestsInSmoke": 0,
+  "Startup": {
+    "RootLoadedMilliseconds": 412.3431,
+    "FirstSystemPaintMilliseconds": 485.3833,
+    "FirstCpuUsageMilliseconds": 485.3839,
+    "FirstGpuMilliseconds": 514.3114,
+    "FirstThermalMilliseconds": 7599.7501,
+    "InventoryMilliseconds": 7427.8509,
+    "ProcessStartToFirstSystemMilliseconds": 773.0372,
+    "ProcessStartToFirstCpuMilliseconds": 773.0378000000001,
+    "SimulatedSlowProviderDelayMilliseconds": 0,
+    "SystemAndCpuBeforeAllSlowProviders": true
+  },
+  "LightAndDarkThemesVerified": true,
+  "SettingsAndAboutNavigationVerified": true,
+  "MinimizeHidesToTray": true,
+  "CloseHidesToTray": true,
+  "WindowsStartupValueUnchanged": true
+}

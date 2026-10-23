@@ -39,8 +39,26 @@ public sealed partial class MainWindow
         SidebarBrand.Visibility = saved.PaneOpen ? Visibility.Visible : Visibility.Collapsed;
         var version = typeof(MainWindow).Assembly.GetName().Version;
         AboutVersion.Text = $"版本 {version?.Major}.{version?.Minor}.{version?.Build}";
+        try { StartupToggle.IsOn = !IsSmokeRun && KClevoPanel.Core.StartupRegistration.IsEnabled(Environment.ProcessPath!); }
+        catch (Exception error) { StartupDescription.Text = "无法读取启动项：" + error.Message; }
         _settingsReady = true;
         UpdateSamplingSummary();
+    }
+    private bool _startupUpdating;
+    private void StartupToggled(object sender, RoutedEventArgs e)
+    {
+        if (!_settingsReady || _startupUpdating || IsSmokeRun) return;
+        try
+        {
+            KClevoPanel.Core.StartupRegistration.SetEnabled(Environment.ProcessPath!, StartupToggle.IsOn);
+            StartupDescription.Text = StartupToggle.IsOn ? "已开启：登录 Windows 后在托盘运行。移动程序后请重新开启。" : "已关闭开机自启动。";
+        }
+        catch (Exception error)
+        {
+            _startupUpdating = true;
+            try { StartupToggle.IsOn = KClevoPanel.Core.StartupRegistration.IsEnabled(Environment.ProcessPath!); } catch { StartupToggle.IsEnabled = false; }
+            _startupUpdating = false; StartupDescription.Text = "启动项未保存：" + error.Message;
+        }
     }
     private void SavePreferences(bool? paneOpen = null)
     {

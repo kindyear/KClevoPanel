@@ -1,4 +1,4 @@
-﻿using System.Text.Json;
+using System.Text.Json;
 using KClevoPanel.Core;
 
 if (args.Contains("--hardware-only"))
@@ -12,6 +12,7 @@ if (args.Contains("--self-test"))
     void Check(bool condition, string name) { if (!condition) throw new Exception(name); Console.WriteLine($"PASS {name}"); }
     await DirectPresetTests.Run(Check);
     FanCurveTests.Run(Check);
+    Check(StartupRegistration.Command(@"C:\Program Files\KClevoPanel\KClevoPanel.exe") == "\"C:\\Program Files\\KClevoPanel\\KClevoPanel.exe\" --startup", "Startup command quotes executable path and requests background startup");
     Check(CpuMath.Percent(100, 200, 100, 150, 300, 200) == 75, "CPU kernel includes idle");
     Check(CpuMath.Percent(100, 200, 100, 100, 200, 100) is null, "No elapsed time is unavailable");
     Check(CpuMath.Percent(100, 200, 100, 90, 300, 200) is null, "Counter reset is unavailable");

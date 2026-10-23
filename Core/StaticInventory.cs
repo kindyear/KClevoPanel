@@ -37,11 +37,19 @@ public static class StaticInventory
     public static MachineInfo Read()
     {
         var errors = new List<string>();
-        var computer = Query("SELECT Manufacturer,Model FROM Win32_ComputerSystem", errors).FirstOrDefault();
-        var bios = Query("SELECT SMBIOSBIOSVersion FROM Win32_BIOS", errors).FirstOrDefault();
-        var os = Query("SELECT Caption,Version,BuildNumber FROM Win32_OperatingSystem", errors).FirstOrDefault();
-        var cpu = Query("SELECT Name FROM Win32_Processor", errors).FirstOrDefault();
-        var gpus = Query("SELECT Name FROM Win32_VideoController", errors).Select(x => Value(x, "Name")).ToArray();
+        // Limit WMI concurrency and keep per-query errors, without changing control identity checks.
+        string[] queries = ["SELECT Manufacturer,Model FROM Win32_ComputerSystem",
+            "SELECT SMBIOSBIOSVersion FROM Win32_BIOS", "SELECT Caption,Version,BuildNumber FROM Win32_OperatingSystem",
+            "SELECT Name FROM Win32_VideoController"];
+        var rows = new List<Dictionary<string,string>>[queries.Length];
+        var queryErrors = new List<string>[queries.Length];
+        Parallel.For(0, queries.Length, new ParallelOptions { MaxDegreeOfParallelism = 2 }, i =>
+        { queryErrors[i] = []; rows[i] = Query(queries[i], queryErrors[i]); });
+        foreach (var list in queryErrors) errors.AddRange(list);
+        var computer = rows[0].FirstOrDefault(); var bios = rows[1].FirstOrDefault();
+        var os = rows[2].FirstOrDefault(); var gpus = rows[3].Select(x => Value(x, "Name")).ToArray();
+        string cpu = ReadCpuNameFast();
+        if (cpu == "型号读取中") cpu = Value(Query("SELECT Name FROM Win32_Processor", errors).FirstOrDefault(), "Name");
         var drivers = BridgeDrivers(errors);
         var root = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ProgramFilesX86), "ControlCenter");
         var libraries = new List<DllInfo> { ReadDll(Path.Combine(root, "InsydeDCHU.dll")), ReadDll(Path.Combine(root, "DCHU", "InsydeDCHU.dll")) };
@@ -52,7 +60,7 @@ public static class StaticInventory
         }
         catch { }
         return new(Value(computer, "Manufacturer"), Value(computer, "Model"), Value(bios, "SMBIOSBIOSVersion"),
-            $"{Value(os, "Caption")} · {Value(os, "Version")}", Value(cpu, "Name"), gpus, drivers,
+            $"{Value(os, "Caption")} · {Value(os, "Version")}", cpu, gpus, drivers,
             libraries.ToArray(),
             DateTimeOffset.Now, errors.ToArray());
     }

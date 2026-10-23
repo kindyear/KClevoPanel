@@ -12,6 +12,7 @@ public sealed partial class MiniWindow : Window
     public IntPtr Handle { get; }
     public bool IsShown => AppWindow.IsVisible;
     internal bool PresetLayoutVerifiedForSmoke => MiniPresets.LayoutVerifiedForSmoke;
+    internal string PresetLayoutDetailsForSmoke => MiniPresets.LayoutDetailsForSmoke;
     internal bool FeedbackVisibleForSmoke => PresetSuccessIcon.Visibility == Visibility.Visible;
     internal FrameworkElement RenderRoot => MiniRoot;
     internal void SetTheme(ElementTheme theme) => MiniRoot.RequestedTheme = theme;

@@ -1,3 +1,5 @@
+> 本文保留 v0.11 的协议与历史说明。v0.12 新增可选登录自启动、单实例及加载优化，当前行为请参阅 README。
+
 # KClevoPanel 0.11 · WinUI 3 监测与风扇控制
 
 针对 COLORFUL X17 AT 23H2 / i7-13650HX / RTX 4060 Laptop / BIOS 1.07.04TCOLO 的原生 Windows x64 应用。解压完整发布文件夹，运行 KClevoPanel.exe。
