@@ -1,0 +1,9 @@
+<Project>
+  <PropertyGroup>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <X17BuildRoot Condition="'$(X17BuildRoot)' == ''">$(MSBuildThisFileDirectory)work\build\</X17BuildRoot>
+    <BaseIntermediateOutputPath>$(X17BuildRoot)$(MSBuildProjectName)\obj\</BaseIntermediateOutputPath>
+    <BaseOutputPath>$(X17BuildRoot)$(MSBuildProjectName)\bin\</BaseOutputPath>
+  </PropertyGroup>
+</Project>

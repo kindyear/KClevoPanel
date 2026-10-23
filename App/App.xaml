@@ -1,0 +1,31 @@
+<Application x:Class="KClevoPanel.App.App"
+ xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+ xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+ <Application.Resources><ResourceDictionary><ResourceDictionary.MergedDictionaries>
+  <XamlControlsResources xmlns="using:Microsoft.UI.Xaml.Controls" />
+ </ResourceDictionary.MergedDictionaries>
+ <ResourceDictionary.ThemeDictionaries>
+  <ResourceDictionary x:Key="Light">
+   <SolidColorBrush x:Key="CpuGraphBrush" Color="#0067C0"/>
+   <SolidColorBrush x:Key="MemoryGraphBrush" Color="#744DA9"/>
+   <SolidColorBrush x:Key="GpuGraphBrush" Color="#008272"/>
+   <SolidColorBrush x:Key="BatteryGraphBrush" Color="#986900"/>
+   <SolidColorBrush x:Key="GraphGridBrush" Color="#16000000"/>
+  </ResourceDictionary>
+  <ResourceDictionary x:Key="Default">
+   <SolidColorBrush x:Key="CpuGraphBrush" Color="#60CDFF"/>
+   <SolidColorBrush x:Key="MemoryGraphBrush" Color="#C4ACF5"/>
+   <SolidColorBrush x:Key="GpuGraphBrush" Color="#6BD8C2"/>
+   <SolidColorBrush x:Key="BatteryGraphBrush" Color="#F2CE87"/>
+   <SolidColorBrush x:Key="GraphGridBrush" Color="#18FFFFFF"/>
+  </ResourceDictionary>
+  <ResourceDictionary x:Key="HighContrast">
+   <SolidColorBrush x:Key="CpuGraphBrush" Color="{ThemeResource SystemColorWindowTextColor}"/>
+   <SolidColorBrush x:Key="MemoryGraphBrush" Color="{ThemeResource SystemColorWindowTextColor}"/>
+   <SolidColorBrush x:Key="GpuGraphBrush" Color="{ThemeResource SystemColorWindowTextColor}"/>
+   <SolidColorBrush x:Key="BatteryGraphBrush" Color="{ThemeResource SystemColorWindowTextColor}"/>
+   <SolidColorBrush x:Key="GraphGridBrush" Color="{ThemeResource SystemColorWindowTextColor}" Opacity="0.25"/>
+  </ResourceDictionary>
+ </ResourceDictionary.ThemeDictionaries>
+ </ResourceDictionary></Application.Resources>
+</Application>

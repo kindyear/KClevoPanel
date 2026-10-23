@@ -1,0 +1,76 @@
+PASS Direct mode uses the exact OEM 4-byte payload and baseline
+PASS Performance preserves verified turbo bit 0x40
+PASS Turbo flag is not copied into Quiet
+PASS Unresolved DTT branch blocks writes and unsafe restoration
+PASS Quiet-plus baseline cannot be silently flattened
+PASS No arbitrary firmware mode can be planned
+PASS Unknown turbo layout blocks writes
+PASS Precondition token ignores time but detects changed settings
+PASS Direct transaction acknowledges one command and one saved selection
+PASS Durable intent precedes firmware and mirror writes
+PASS Mirror readback is never labeled hardware-effect verification
+PASS Stale baseline rejects every write
+PASS Current mode is a no-op and cannot claim a firmware acknowledgement
+PASS Unavailable recovery journal prevents the first write
+PASS Mirror failure restores the validated baseline once
+PASS Ambiguous firmware result does not loop or claim restoration
+PASS Direct IPC client rejects out-of-range modes without a child
+PASS Direct client cannot apply before a baseline read
+PASS Disposed direct client cannot launch a child
+PASS Fan frame uses raw duty with exact native rounding
+PASS Fan slope bytes follow native percent formula and big endian layout
+PASS GPU slope preserves this device's 99C endpoint
+PASS Absent third fan and all reserved bytes stay zero
+PASS Runtime decoder reads all nodes without inventing endpoint temperatures
+PASS Normalized all-zero absent slot is accepted without inventing a fan
+PASS An unknown active third slot remains rejected
+PASS Changed firmware endpoints are rejected
+PASS Crossed temperatures are rejected
+PASS Duty below 30 percent is rejected
+PASS Offsets, turbo fan and unverified fan modes block trial
+PASS Precondition token tracks settings and ignores timestamps
+PASS Unchanged curves do not issue writes or claim a hardware verification
+PASS Trial applies both curves and custom selection only after valid preconditions
+PASS Guardian restoration verifies both tables and saved mode
+PASS Stale settings produce zero native writes
+PASS Unsafe initial temperatures produce zero native writes
+PASS Command echo and mode mirror alone cannot report curve success
+PASS A mismatch in GPU nodes rejects whole trial
+PASS Failed curve restoration still attempts Auto independently
+PASS Overtemperature and hot stopped fan interrupt trial
+PASS Cold firmware-controlled fan stop differs from an invalid RPM sample
+PASS ACPI integer return is recorded and runtime nodes determine curve success
+PASS Already-restored state is reconciled without any writes
+PASS Continuous control can select an existing curve without rewriting its table
+PASS Mode-only transaction journals intent and writes only mode and mirror
+PASS Unknown fan modes issue zero writes
+PASS Auto already selected is a read-only no-op
+PASS Mode preconditions reject stale tokens
+PASS Trials expire after 30 seconds
+PASS Responsive sessions continue beyond the trial deadline
+PASS Continuous control stops on heartbeat timeout
+PASS A resume or telemetry gap ends continuous control
+PASS Application exit and explicit stop end control
+PASS CPU kernel includes idle
+PASS No elapsed time is unavailable
+PASS Counter reset is unavailable
+PASS Invalid idle delta is unavailable
+PASS Root DLL export capabilities
+PASS DCHU DLL export capabilities
+PASS Target DLL identity
+PASS Missing DLL remains unavailable
+PASS Verified DriverStore library resolves without a ControlCenter process
+PASS Filtered firmware identity preserves all model BIOS and bridge guards
+PASS Fast system read does not initialize or query NVML
+PASS Late read after disposal cannot reopen native resources
+PASS History keeps a boundary predecessor and preserves missing samples
+PASS Duplicate timestamp replaces last value
+PASS Clock reversal resets history and invalid values are gaps
+PASS Rolling window retains exactly one predecessor for clipping
+PASS Long gaps keep bounded history without filling missing time
+PASS Thermal byte layout and vendor fan formula
+PASS Fan unavailable sentinel differs from zero RPM
+PASS Empty firmware response cannot become telemetry
+PASS Hardware memory capacity uses binary GiB
+PASS Hardware disk capacity uses decimal TB
+PASS Missing hardware capacity is not a fabricated zero

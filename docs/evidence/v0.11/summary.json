@@ -1,0 +1,36 @@
+{
+  "curve-trial": {
+    "Restored": true,
+    "BothActiveCurvesEqualToBaseline": true,
+    "SettingsTokenEqualToBaseline": true,
+    "Reason": "30 秒试用结束，原节点与模式记录已核对"
+  },
+  "maximum": {
+    "Restored": true,
+    "BothActiveCurvesEqualToBaseline": true,
+    "SettingsTokenEqualToBaseline": true,
+    "Reason": "30 秒试用结束，原节点与模式记录已核对",
+    "MeasuredFans": [
+      {
+        "Name": "CPU",
+        "Rpm": 6956,
+        "DutyPercent": 100,
+        "Raw": 310
+      },
+      {
+        "Name": "GPU",
+        "Rpm": 6824,
+        "DutyPercent": 100,
+        "Raw": 316
+      }
+    ]
+  },
+  "continuous-heartbeat": {
+    "Restored": true,
+    "BothActiveCurvesEqualToBaseline": true,
+    "SettingsTokenEqualToBaseline": true,
+    "Reason": "应用心跳已中断，原节点与模式记录已核对",
+    "ActiveAfter41SecondsOfHeartbeat": true,
+    "RestoredAfterHeartbeatStoppedWithParentAlive": true
+  }
+}

@@ -1,0 +1,32 @@
+﻿<UserControl x:Class="KClevoPanel.App.PresetSelector"
+ xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+ <Border Background="{ThemeResource ControlFillColorSecondaryBrush}" BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}" BorderThickness="1" CornerRadius="9" Padding="4">
+  <Grid x:Name="Track" SizeChanged="TrackSizeChanged" Height="32">
+   <Grid.Resources>
+    <Style x:Key="SegmentButton" TargetType="Button">
+     <Setter Property="HorizontalAlignment" Value="Stretch"/><Setter Property="VerticalAlignment" Value="Stretch"/>
+     <Setter Property="Padding" Value="8,0"/><Setter Property="FontSize" Value="13"/>
+     <Setter Property="Template"><Setter.Value><ControlTemplate TargetType="Button">
+      <Grid>
+       <VisualStateManager.VisualStateGroups><VisualStateGroup x:Name="CommonStates">
+        <VisualState x:Name="Normal"/>
+        <VisualState x:Name="PointerOver"><VisualState.Setters><Setter Target="Hover.Opacity" Value="0.055"/></VisualState.Setters></VisualState>
+        <VisualState x:Name="Pressed"><VisualState.Setters><Setter Target="Hover.Opacity" Value="0.09"/></VisualState.Setters></VisualState>
+        <VisualState x:Name="Disabled"><VisualState.Setters><Setter Target="Label.Opacity" Value="0.4"/></VisualState.Setters></VisualState>
+       </VisualStateGroup></VisualStateManager.VisualStateGroups>
+       <Border x:Name="Hover" CornerRadius="5" Background="{ThemeResource TextFillColorPrimaryBrush}" Opacity="0"/>
+       <ContentPresenter x:Name="Label" Content="{TemplateBinding Content}" Padding="{TemplateBinding Padding}" HorizontalContentAlignment="Center" VerticalContentAlignment="Center"/>
+      </Grid>
+     </ControlTemplate></Setter.Value></Setter>
+    </Style>
+   </Grid.Resources>
+   <Border x:Name="Indicator" Background="{ThemeResource ControlFillColorDefaultBrush}" BorderBrush="{ThemeResource ControlStrokeColorDefaultBrush}" BorderThickness="1" CornerRadius="5" HorizontalAlignment="Left" IsHitTestVisible="False" Visibility="Collapsed"><Border.RenderTransform><TranslateTransform x:Name="Slide"/></Border.RenderTransform></Border>
+   <Grid ColumnSpacing="6"><Grid.ColumnDefinitions><ColumnDefinition/><ColumnDefinition/><ColumnDefinition/><ColumnDefinition/></Grid.ColumnDefinitions>
+    <Button x:Name="Quiet" Grid.Column="0" Tag="0" Click="SegmentClicked" Style="{StaticResource SegmentButton}" AutomationProperties.Name="安静"><StackPanel Orientation="Horizontal" Spacing="6" VerticalAlignment="Center"><PathIcon Data="M12,1 A7,7 0 1 0 15,12 A8,8 0 0 1 12,1 Z" Width="14" Height="14"/><TextBlock Text="安静" FontSize="13" VerticalAlignment="Center"/></StackPanel></Button>
+    <Button x:Name="Saving" Grid.Column="1" Tag="1" Click="SegmentClicked" Style="{StaticResource SegmentButton}" AutomationProperties.Name="省电"><StackPanel Orientation="Horizontal" Spacing="6" VerticalAlignment="Center"><PathIcon Data="M2,13 C-1,5 5,1 15,1 C15,11 11,16 4,14 L12,4 L2,13 Z" Width="14" Height="14"/><TextBlock Text="省电" FontSize="13" VerticalAlignment="Center"/></StackPanel></Button>
+    <Button x:Name="Performance" Grid.Column="2" Tag="2" Click="SegmentClicked" Style="{StaticResource SegmentButton}" AutomationProperties.Name="性能"><StackPanel Orientation="Horizontal" Spacing="6" VerticalAlignment="Center"><PathIcon Data="M9,0 L2,9 L7,9 L5,16 L14,6 L9,6 L11,0 Z" Width="14" Height="14"/><TextBlock Text="性能" FontSize="13" VerticalAlignment="Center"/></StackPanel></Button>
+    <Button x:Name="Entertainment" Grid.Column="3" Tag="3" Click="SegmentClicked" Style="{StaticResource SegmentButton}" AutomationProperties.Name="娱乐"><StackPanel Orientation="Horizontal" Spacing="6" VerticalAlignment="Center"><PathIcon Data="M4,4 L12,4 C15,4 17,14 13,14 L10,11 L6,11 L3,14 C-1,14 1,4 4,4 Z M4,6 L4,8 L2,8 L2,9 L4,9 L4,11 L5,11 L5,9 L7,9 L7,8 L5,8 L5,6 Z M11,7 L11,9 L13,9 L13,7 Z" Width="14" Height="14"/><TextBlock Text="娱乐" FontSize="13" VerticalAlignment="Center"/></StackPanel></Button>
+   </Grid>
+  </Grid>
+ </Border>
+</UserControl>

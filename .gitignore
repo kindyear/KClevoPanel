@@ -1,0 +1,27 @@
+# Build output and local tooling
+**/bin/
+**/obj/
+/work/
+/artifacts/
+/publish/
+/.vs/
+/.idea/
+*.user
+*.suo
+*.cache
+*.log
+*.tmp
+*.dmp
+*.zip
+
+# Local configuration and credentials
+.env
+.env.*
+!.env.example
+*.pfx
+*.p12
+
+# OS metadata
+Thumbs.db
+Desktop.ini
+.DS_Store

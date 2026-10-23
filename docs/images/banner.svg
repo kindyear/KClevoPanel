@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1280" height="320" viewBox="0 0 1280 320" role="img" aria-labelledby="title desc">
+ <title id="title">KClevoPanel</title><desc id="desc">Native Windows monitoring and fan control. Decorative performance graph.</desc>
+ <defs><linearGradient id="bg" x2="1" y2="1"><stop stop-color="#101923"/><stop offset="1" stop-color="#162d38"/></linearGradient><linearGradient id="line"><stop stop-color="#68d4ff"/><stop offset="1" stop-color="#79e0c4"/></linearGradient><pattern id="grid" width="48" height="40" patternUnits="userSpaceOnUse"><path d="M48 0H0V40" fill="none" stroke="#94b6c6" stroke-opacity=".08"/></pattern></defs>
+ <rect width="1280" height="320" rx="24" fill="url(#bg)"/><rect x="700" width="580" height="320" fill="url(#grid)"/>
+ <path d="M770 244L806 244 824 202 847 264 876 168 904 222 930 222 956 116 980 194 1010 194 1032 144 1060 184 1090 184 1112 84 1138 150 1160 126 1190 156 1230 110 1280 110" fill="none" stroke="url(#line)" stroke-width="3" stroke-linejoin="round"/>
+ <rect x="64" y="61" width="48" height="48" rx="12" fill="#68d4ff" fill-opacity=".1" stroke="#68d4ff" stroke-opacity=".45"/><path d="M74 87h8l5-13 7 24 5-11h4" fill="none" stroke="#68d4ff" stroke-width="2.5" stroke-linejoin="round"/>
+ <text x="132" y="92" fill="#92b4c5" font-family="Segoe UI, sans-serif" font-size="15" letter-spacing="3">BUILT FOR WINDOWS</text>
+ <text x="64" y="174" fill="#f4f9fc" font-family="Segoe UI, sans-serif" font-size="58" font-weight="650" letter-spacing="-2">KClevoPanel</text>
+ <text x="67" y="217" fill="#b5c9d4" font-family="Segoe UI, sans-serif" font-size="21">Your hardware. A clearer view.</text>
+ <text x="67" y="267" fill="#7fabbf" font-family="Segoe UI, sans-serif" font-size="13" letter-spacing="2">WINUI 3   /   LIVE METRICS   /   FAN CURVES</text>
+</svg>

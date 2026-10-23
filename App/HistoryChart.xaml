@@ -1,0 +1,10 @@
+<UserControl x:Class="KClevoPanel.App.HistoryChart"
+ xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+ xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+ <Grid>
+  <Grid.RowDefinitions><RowDefinition Height="*"/><RowDefinition Height="22"/></Grid.RowDefinitions>
+  <Canvas x:Name="Plot" MinHeight="50" SizeChanged="PlotSizeChanged"/>
+  <TextBlock Grid.Row="1" Text="60 秒前" Margin="2,0" FontSize="11" Foreground="{ThemeResource TextFillColorTertiaryBrush}" VerticalAlignment="Bottom"/>
+  <TextBlock Grid.Row="1" Text="现在" Margin="2,0" FontSize="11" Foreground="{ThemeResource TextFillColorTertiaryBrush}" VerticalAlignment="Bottom" HorizontalAlignment="Right"/>
+ </Grid>
+</UserControl>

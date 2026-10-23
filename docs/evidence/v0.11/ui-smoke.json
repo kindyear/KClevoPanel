@@ -1,0 +1,20 @@
+{
+  "Passed": true,
+  "TrayRegistered": true,
+  "TrayMessageOpenedMini": true,
+  "CloseHidesToTray": true,
+  "MinimizeHidesToTray": true,
+  "SystemMinimizeHidesToTray": true,
+  "LightAndDarkThemesVerified": true,
+  "ProcessorLabelsAndPositionsVerified": true,
+  "HardwareResponsiveColumnsVerified": true,
+  "HardwareCardGapsVerified": true,
+  "SettingsAndAboutNavigationVerified": true,
+  "SidebarCollapseExpandVerified": true,
+  "IndependentSamplingIntervalsVerified": true,
+  "SettingsSerializationAndValidationVerified": true,
+  "FanCurveReadAndEditVerified": true,
+  "FanModeControlsVerified": true,
+  "FanFirmwareWriteRequestsInSmoke": 0,
+  "PresetWriteRequestsInSmoke": 0
+}

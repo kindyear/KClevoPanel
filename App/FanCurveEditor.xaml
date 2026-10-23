@@ -1,0 +1,22 @@
+<UserControl x:Class="KClevoPanel.App.FanCurveEditor"
+ xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+ xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+ <Border x:Name="EditorCard" Background="{ThemeResource CardBackgroundFillColorDefaultBrush}" BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}" BorderThickness="1" CornerRadius="8" Padding="20,16">
+  <StackPanel Spacing="12">
+   <Border x:Name="GridStyle" Visibility="Collapsed" Background="{ThemeResource GraphGridBrush}"/>
+   <Grid><StackPanel Spacing="4"><TextBlock x:Name="FanTitle" Text="CPU 风扇" Style="{ThemeResource SubtitleTextBlockStyle}"/><TextBlock x:Name="TelemetryLabel" Text="等待实时数据" FontSize="12" Foreground="{ThemeResource TextFillColorSecondaryBrush}"/></StackPanel><FontIcon Glyph="&#xE9CA;" HorizontalAlignment="Right" VerticalAlignment="Center" FontSize="24" Foreground="{ThemeResource TextFillColorSecondaryBrush}"/></Grid>
+   <Grid Height="168" Margin="0,4,0,0"><Canvas x:Name="Plot" SizeChanged="PlotChanged" PointerPressed="PlotPressed" PointerMoved="PlotMoved" PointerReleased="PlotReleased" PointerCanceled="PlotReleased" PointerCaptureLost="PlotCaptureLost" Background="Transparent"/><TextBlock Text="占空比 %" FontSize="10" IsHitTestVisible="False" Foreground="{ThemeResource TextFillColorTertiaryBrush}"/><TextBlock Text="温度 °C" FontSize="10" IsHitTestVisible="False" HorizontalAlignment="Right" VerticalAlignment="Bottom" Foreground="{ThemeResource TextFillColorTertiaryBrush}"/></Grid>
+   <StackPanel Orientation="Horizontal" Spacing="12"><StackPanel Orientation="Horizontal" Spacing="5"><Border Width="16" Height="3" x:Name="LegendColor" VerticalAlignment="Center"/><TextBlock Text="编辑曲线" FontSize="11"/></StackPanel><StackPanel Orientation="Horizontal" Spacing="5"><Border Width="16" Height="2" Background="{ThemeResource TextFillColorTertiaryBrush}" VerticalAlignment="Center"/><TextBlock Text="固件运行时" FontSize="11" Foreground="{ThemeResource TextFillColorSecondaryBrush}"/></StackPanel></StackPanel>
+   <Grid ColumnSpacing="8" RowSpacing="8"><Grid.ColumnDefinitions><ColumnDefinition Width="Auto"/><ColumnDefinition/><ColumnDefinition/></Grid.ColumnDefinitions><Grid.RowDefinitions><RowDefinition/><RowDefinition/><RowDefinition/></Grid.RowDefinitions>
+    <TextBlock Grid.Column="1" Text="温度 · °C" FontSize="11" Foreground="{ThemeResource TextFillColorSecondaryBrush}"/><TextBlock Grid.Column="2" Text="占空比 · %" FontSize="11" Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
+    <TextBlock Text="节点 2" Grid.Row="1" VerticalAlignment="Center" FontSize="12"/>
+    <NumberBox x:Name="T2" Grid.Row="1" Grid.Column="1" ValueChanged="NodeChanged" SpinButtonPlacementMode="Compact" SmallChange="1" Minimum="21" Maximum="90" AutomationProperties.Name="节点2温度"/>
+    <NumberBox x:Name="D2" Grid.Row="1" Grid.Column="2" ValueChanged="NodeChanged" SpinButtonPlacementMode="Compact" SmallChange="1" Minimum="30" Maximum="100" AutomationProperties.Name="节点2占空比"/>
+    <TextBlock Text="节点 3" Grid.Row="2" VerticalAlignment="Center" FontSize="12"/>
+    <NumberBox x:Name="T3" Grid.Row="2" Grid.Column="1" ValueChanged="NodeChanged" SpinButtonPlacementMode="Compact" SmallChange="1" Minimum="22" Maximum="95" AutomationProperties.Name="节点3温度"/>
+    <NumberBox x:Name="D3" Grid.Row="2" Grid.Column="2" ValueChanged="NodeChanged" SpinButtonPlacementMode="Compact" SmallChange="1" Minimum="30" Maximum="100" AutomationProperties.Name="节点3占空比"/>
+   </Grid>
+   <TextBlock x:Name="EndpointLabel" Text="首尾节点由固件提供" FontSize="11" Foreground="{ThemeResource TextFillColorSecondaryBrush}" TextWrapping="Wrap"/>
+  </StackPanel>
+ </Border>
+</UserControl>
