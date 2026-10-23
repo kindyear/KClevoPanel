@@ -37,7 +37,9 @@ public sealed partial class FanPage : UserControl, IDisposable
         GpuEditor.Configure("GPU 风扇", new SolidColorBrush(light ? Windows.UI.Color.FromArgb(255, 0, 130, 114) : Windows.UI.Color.FromArgb(255, 107, 216, 194)));
     }
     public async Task EnsureLoadedAsync() { if (!_loaded) await ReadAsync(); }
-    private async void ReadClicked(object sender, RoutedEventArgs e) => await ReadAsync();
+    public Task RefreshAsync() => ReadAsync();
+    public bool CanRefresh => !_reading && !_busy;
+    public event Action? RefreshAvailabilityChanged;
     private async Task ReadAsync()
     {
         if (_reading || _busy) return;
@@ -60,7 +62,7 @@ public sealed partial class FanPage : UserControl, IDisposable
             }
             UpdateTelemetry(state.Thermal); PaintMode();
         }
-        catch (Exception error) { ReadLabel.Text = "读取未完成：" + error.Message; ShowResult("风扇通道暂不可用", error.Message, InfoBarSeverity.Warning); }
+        catch (Exception error) { SessionLabel.Text = "读取未完成：" + error.Message; ShowResult("风扇通道暂不可用", error.Message, InfoBarSeverity.Warning); }
         finally { _reading = false; UpdateEnabled(); }
     }
     public void UpdateTelemetry(ThermalReading? thermal)
@@ -120,7 +122,8 @@ public sealed partial class FanPage : UserControl, IDisposable
     private async void ModeClicked(object sender, RoutedEventArgs e)
     {
         if (IsSmoke || _busy || _reading || sender is not FrameworkElement element || !int.TryParse(element.Tag?.ToString(), out int mode)) { PaintMode(); return; }
-        _busy = true; _showSession = false; WriteRequests++; Signal();
+        _busy = true; _showSession = false; WriteRequests++; PaintMode(); Signal();
+        ShowResult("正在切换", "请稍候，正在下发并核对风扇模式…", InfoBarSeverity.Informational);
         try
         {
             await _client.StopAndWaitAsync();
@@ -128,7 +131,7 @@ public sealed partial class FanPage : UserControl, IDisposable
             var result = await _client.SetModeAsync(before, mode);
             if (!result.Confirmed || result.After is null) throw new IOException(result.Message);
             _baseline = _current = result.After;
-            ShowResult(mode == 0 ? "已切换自动" : "已切换最大风量", result.Message + "；实际转速见上方读数。", InfoBarSeverity.Success);
+            ShowResult(mode == 0 ? "已切换自动" : "已切换最大风量", result.Message + "；实际转速见风扇读数。", InfoBarSeverity.Success);
         }
         catch (Exception error) { ShowResult("切换未确认", error.Message, InfoBarSeverity.Warning); }
         finally { _busy = false; PaintMode(); Signal(); }
@@ -157,7 +160,7 @@ public sealed partial class FanPage : UserControl, IDisposable
             if (_disposed) return;
             _current = state.Snapshot; UpdateTelemetry(state.Thermal); PaintMode();
         }
-        catch (Exception error) { if (!_disposed) { ModeLabel.Text = "状态暂未刷新"; ReadLabel.Text = error.Message; } }
+        catch (Exception error) { if (!_disposed) { ModeLabel.Text = "状态暂未刷新"; SessionLabel.Text = error.Message; } }
         finally { _polling = false; }
     }
     private void PaintMode()
@@ -165,7 +168,7 @@ public sealed partial class FanPage : UserControl, IDisposable
         int? mode = _current?.Settings.FanMode;
         AutoMode.IsChecked = mode == 0; MaxMode.IsChecked = mode == 1; CustomMode.IsChecked = mode == 6;
         ModeLabel.Text = mode switch { 0 => "当前：自动", 1 => "当前：最大风量", 6 => "当前：自定义", _ => "模式未知" };
-        if (_current is not null) ReadLabel.Text = $"模式记录更新于 {_current.CapturedAt:HH:mm:ss} · 两路风扇 · 编辑与实时状态独立";
+        if (_current is not null) SessionLabel.Text = $"模式记录更新于 {_current.CapturedAt:HH:mm:ss} · 两路风扇 · 编辑与实时状态独立";
     }
     private void PaintSession()
     {
@@ -193,7 +196,10 @@ public sealed partial class FanPage : UserControl, IDisposable
     private void UpdateEnabled()
     {
         bool ready = _baseline is not null && !_reading && !_busy;
-        ReadButton.IsEnabled = !_reading && !_busy;
+        RefreshAvailabilityChanged?.Invoke();
+        ModeProgress.IsActive = _busy || _reading;
+        BusyPanel.Visibility = _busy || _reading ? Visibility.Visible : Visibility.Collapsed;
+        BusyText.Text = _busy ? "正在处理并核对固件状态…" : "正在读取风扇状态…";
         CpuEditor.IsEnabled = GpuEditor.IsEnabled = ready;
         AutoMode.IsEnabled = MaxMode.IsEnabled = CustomMode.IsEnabled = ready;
         ResetButton.IsEnabled = ready;
@@ -207,6 +213,9 @@ public sealed partial class FanPage : UserControl, IDisposable
     private void EditorsSizeChanged(object sender, SizeChangedEventArgs e)
     { bool narrow = e.NewSize.Width < 680; Grid.SetColumn(GpuEditor, narrow ? 0 : 1); Grid.SetRow(GpuEditor, narrow ? 1 : 0); Editors.ColumnDefinitions[1].Width = narrow ? new GridLength(0) : new GridLength(1, GridUnitType.Star); }
     public void Dispose() { _disposed = true; _poll.Stop(); _client.Dispose(); }
+    internal void PreviewBusyForSmoke(bool busy)
+    { if (!IsSmoke) return; _busy = busy; UpdateEnabled(); if (busy) ShowResult("加载状态预览", "正在切换并核对风扇模式（仅界面预览）", InfoBarSeverity.Informational); else ResultBar.IsOpen = false; }
+    internal bool BusyVisibleForSmoke => ModeProgress.IsActive && BusyPanel.Visibility == Visibility.Visible;
     internal bool ReadyForSmoke => _baseline is not null && CpuEditor.Curve is not null && GpuEditor.Curve is not null;
     internal bool ModesReadyForSmoke => ReadyForSmoke && AutoMode.IsChecked == (_current?.Settings.FanMode == 0) && AutoMode.IsEnabled && MaxMode.IsEnabled && CustomMode.IsEnabled;
     internal void ShowActionsForSmoke() => ApplyButton.StartBringIntoView(new BringIntoViewOptions { AnimationDesired = false });

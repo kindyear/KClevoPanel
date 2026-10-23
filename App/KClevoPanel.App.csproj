@@ -6,7 +6,7 @@
     <RootNamespace>KClevoPanel.App</RootNamespace>
     <ApplicationManifest>app.manifest</ApplicationManifest>
     <ApplicationIcon>Assets\Monitor.ico</ApplicationIcon>
-    <Version>0.12.1</Version><AssemblyName>KClevoPanel</AssemblyName><Product>KClevoPanel</Product>
+    <Version>0.13.0</Version><AssemblyName>KClevoPanel</AssemblyName><Product>KClevoPanel</Product>
     <Platforms>x64</Platforms><PlatformTarget>x64</PlatformTarget><RuntimeIdentifier>win-x64</RuntimeIdentifier>
     <UseWinUI>true</UseWinUI><EnableMsixTooling>true</EnableMsixTooling>
     <WindowsPackageType>None</WindowsPackageType>

@@ -1,0 +1,12 @@
+{
+  "Passed": true,
+  "Scope": "NavigationAndFeedbackOnly",
+  "SharedRefreshGeometryVerified": true,
+  "ChannelsPageNavigationVerified": true,
+  "FanBusyPreviewVerified": true,
+  "PageTransitionEndStateVerified": true,
+  "WindowsAnimationsEnabled": true,
+  "FanTelemetryAvailableAtEnd": false,
+  "FanFirmwareWriteRequestsInSmoke": 0,
+  "PresetWriteRequestsInSmoke": 0
+}

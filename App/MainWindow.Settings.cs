@@ -91,6 +91,7 @@ public sealed partial class MainWindow
     { if (SidebarBrand is not null) SidebarBrand.Visibility = Visibility.Visible; SavePreferences(true); }
     private void PaneClosing(NavigationView sender, object args)
     { if (SidebarBrand is not null) SidebarBrand.Visibility = Visibility.Collapsed; SavePreferences(false); }
+    private void ChannelsClicked(object sender, RoutedEventArgs e) => ShowPage("channels");
     private void AboutClicked(object sender, RoutedEventArgs e) => ShowPage("about");
     private void SettingsRowSizeChanged(object sender, SizeChangedEventArgs e)
     {
@@ -108,23 +109,47 @@ public sealed partial class MainWindow
         AboutFeatures.ColumnDefinitions[1].Width = narrow ? new GridLength(0) : new GridLength(1, GridUnitType.Star);
     }
     private void BackToSettingsClicked(object sender, RoutedEventArgs e) => ShowPage("settings");
+    private Microsoft.UI.Xaml.Media.Animation.Storyboard? _pageAnimation;
+    private void PageHeaderSizeChanged(object sender, SizeChangedEventArgs e)
+    {
+        bool narrow = e.NewSize.Width < 700;
+        Grid.SetRow(HeaderActions, narrow ? 1 : 0); Grid.SetColumn(HeaderActions, narrow ? 0 : 1);
+        Grid.SetColumnSpan(HeaderActions, narrow ? 3 : 1);
+        HeaderActions.HorizontalAlignment = HorizontalAlignment.Right;
+    }
+    private void AnimatePage()
+    {
+        _pageAnimation?.Stop();
+        if (!new Windows.UI.ViewManagement.UISettings().AnimationsEnabled) return;
+        var animation = new Microsoft.UI.Xaml.Media.Animation.Storyboard();
+        var fade = new Microsoft.UI.Xaml.Media.Animation.DoubleAnimation { From = 0, To = 1, Duration = TimeSpan.FromMilliseconds(200), FillBehavior = Microsoft.UI.Xaml.Media.Animation.FillBehavior.Stop };
+        var move = new Microsoft.UI.Xaml.Media.Animation.DoubleAnimation { From = 12, To = 0, Duration = TimeSpan.FromMilliseconds(220), EnableDependentAnimation = true, FillBehavior = Microsoft.UI.Xaml.Media.Animation.FillBehavior.Stop,
+            EasingFunction = new Microsoft.UI.Xaml.Media.Animation.CubicEase { EasingMode = Microsoft.UI.Xaml.Media.Animation.EasingMode.EaseOut } };
+        Microsoft.UI.Xaml.Media.Animation.Storyboard.SetTarget(fade, PageContent); Microsoft.UI.Xaml.Media.Animation.Storyboard.SetTargetProperty(fade, "Opacity");
+        Microsoft.UI.Xaml.Media.Animation.Storyboard.SetTarget(move, PageContent.RenderTransform); Microsoft.UI.Xaml.Media.Animation.Storyboard.SetTargetProperty(move, "Y");
+        animation.Children.Add(fade); animation.Children.Add(move); _pageAnimation = animation; animation.Begin();
+    }
     private void ShowPage(string page)
     {
+        bool changed = _page != page;
         _page = page;
         OverviewPanel.Visibility = page == "overview" ? Visibility.Visible : Visibility.Collapsed;
         DevicePanel.Visibility = page == "device" ? Visibility.Visible : Visibility.Collapsed;
         FanPanel.Visibility = page == "fans" ? Visibility.Visible : Visibility.Collapsed;
         SettingsPanel.Visibility = page == "settings" ? Visibility.Visible : Visibility.Collapsed;
+        ChannelsPanel.Visibility = page == "channels" ? Visibility.Visible : Visibility.Collapsed;
         AboutPanel.Visibility = page == "about" ? Visibility.Visible : Visibility.Collapsed;
-        HeaderActions.Visibility = page is "overview" or "device" ? Visibility.Visible : Visibility.Collapsed;
+        HeaderActions.Visibility = page == "overview" ? Visibility.Visible : Visibility.Collapsed;
         MainPresets.Visibility = page == "overview" ? Visibility.Visible : Visibility.Collapsed;
         PresetStatus.Visibility = page == "overview" ? Visibility.Visible : Visibility.Collapsed;
-        RefreshText.Visibility = page == "overview" ? Visibility.Collapsed : Visibility.Visible;
+        RefreshButton.Visibility = page is "overview" or "device" or "fans" ? Visibility.Visible : Visibility.Collapsed;
+        RefreshButton.IsEnabled = page != "fans" || Fans.CanRefresh;
         ErrorBar.Visibility = page == "overview" ? Visibility.Visible : Visibility.Collapsed;
         ContentScroll.ChangeView(null, 0, null, true);
         if (page == "device") _ = HardwareDetails.EnsureLoadedAsync();
         if (page == "fans") _ = Fans.EnsureLoadedAsync();
-        PageTitle.Text = page switch { "fans" => "散热控制", "device" => "设备信息", "settings" => "设置", "about" => "关于", _ => "性能概览" };
+        PageTitle.Text = page switch { "channels" => "读取通道", "fans" => "散热控制", "device" => "设备信息", "settings" => "设置", "about" => "关于", _ => "性能概览" };
         UpdatePageStatus();
+        if (changed) AnimatePage();
     }
 }

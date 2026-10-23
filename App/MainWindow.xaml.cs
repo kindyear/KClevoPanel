@@ -59,6 +59,7 @@ public sealed partial class MainWindow : Window
         InitializeComponent();
         InitializePreferences();
         Fans.ActivityChanged += PaintPreset;
+        Fans.RefreshAvailabilityChanged += () => { if (_page == "fans") RefreshButton.IsEnabled = Fans.CanRefresh; };
         HardwareDetails.CurrentReadings = () => new { Machine = _machine, Snapshot = _snapshot, DchuState = _firmware.State, ReadOnlyCommands = new[] { 12, 13 } };
         SystemBackdrop = new Microsoft.UI.Xaml.Media.MicaBackdrop();
         Title = "KClevoPanel";
@@ -143,6 +144,7 @@ public sealed partial class MainWindow : Window
     }
     private void PaintPreset()
     {
+        PresetProgress.IsActive = _presetChanging; PresetProgress.Visibility = _presetChanging ? Visibility.Visible : Visibility.Collapsed;
         MainPresets.SetState(_presetState.Mode, _presetState.Available && !_presetChanging && !Fans.TrialInProgress);
         string? success = !_presetChanging && _presetState.Available && _presetState.Mode == _presetSuccessMode && _presetError is null && DateTimeOffset.Now < _presetSuccessUntil ? _presetSuccess : null;
         PresetStatus.Text = _presetChanging ? "正在应用固件档位…" : _presetError ?? success ?? _presetState.Status;
@@ -157,7 +159,7 @@ public sealed partial class MainWindow : Window
         _ = RefreshGpuAsync(inventory);
         if (inventory) _ = RefreshThermalAsync(true);
         if (_reading) return;
-        _reading = true; RefreshButton.IsEnabled = false;
+        _reading = true; if (_page == "overview") RefreshButton.IsEnabled = false;
         try
         {
             var result = await Task.Run(() => _telemetry.Read(includeGpu: false));
@@ -167,7 +169,7 @@ public sealed partial class MainWindow : Window
         }
         catch (Exception e)
         { if (!_closed) { ErrorBar.Message = $"读取失败：{e.Message}"; ErrorBar.IsOpen = true; UpdateLabel.Text = "本次读取失败；当前数值为上次结果"; } }
-        finally { _reading = false; if (!_closed) RefreshButton.IsEnabled = true; }
+        finally { _reading = false; if (!_closed && _page == "overview") RefreshButton.IsEnabled = true; }
     }
     private async Task RefreshInventoryAsync()
     {
@@ -285,15 +287,17 @@ public sealed partial class MainWindow : Window
     private void UpdatePageStatus()
     {
         if (_page == "settings") UpdateLabel.Text = "按你的习惯，调整面板体验";
+        else if (_page == "channels") UpdateLabel.Text = "查看本机数据来源与接口状态";
         else if (_page == "about") UpdateLabel.Text = "关于应用与这台设备";
         else if (_page == "device") UpdateLabel.Text = "本机硬件、设备规格与驱动信息";
-        else if (_page == "fans") UpdateLabel.Text = "温度与风量，由你调节";
+        else if (_page == "fans") UpdateLabel.Text = "调整风扇温度控制";
         else if (_snapshot is null) UpdateLabel.Text = "准备读取…";
         else UpdateLabel.Text = _paused ? $"已暂停 · 最后更新 {_snapshot.CapturedAt:HH:mm:ss}" : $"更新于 {_snapshot.CapturedAt:HH:mm:ss} · {SamplingDescription}";
     }
     private async void RefreshClicked(object sender, RoutedEventArgs e)
     {
-        if (DevicePanel.Visibility == Visibility.Visible) await HardwareDetails.RefreshAsync();
+        if (_page == "fans") await Fans.RefreshAsync();
+        else if (DevicePanel.Visibility == Visibility.Visible) await HardwareDetails.RefreshAsync();
         else await RefreshAsync(true);
     }
     private void TogglePause() => SetPaused(!_paused);

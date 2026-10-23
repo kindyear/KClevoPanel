@@ -19,6 +19,8 @@ public sealed partial class MainWindow
         {
             if (Environment.GetCommandLineArgs().Contains("--settings-preview"))
             { await VerifySettingsPagesAsync(path); return; }
+            if (Environment.GetCommandLineArgs().Contains("--navigation-preview"))
+            { await VerifyNavigationAsync(path); return; }
             int activationsBefore = _activationRequests;
             async Task DuplicateAsync(bool background)
             {
@@ -196,7 +198,7 @@ public sealed partial class MainWindow
             if (JsonSerializer.Deserialize<Preferences>(JsonSerializer.Serialize(preferenceTest)) != preferenceTest
                 || new Preferences(9, 17, 1).Normalize() != new Preferences())
                 throw new InvalidOperationException("设置序列化或非法频率回退异常");
-            ChannelExpander.IsExpanded = false;
+            ShowPage("settings");
             await Task.Delay(300);
             await CaptureMainNativeAsync(path, "settings-dark.png");
             ThemeChooser.SelectedIndex = 1; await Task.Delay(300);
@@ -210,8 +212,7 @@ public sealed partial class MainWindow
             }
             ResizeLogical(1100, 940); await Task.Delay(300);
             ThemeChooser.SelectedIndex = 2;
-            ChannelExpander.IsExpanded = true; await Task.Delay(300);
-            ChannelExpander.StartBringIntoView(new BringIntoViewOptions { AnimationDesired = false });
+            ChannelsClicked(this, new RoutedEventArgs()); await Task.Delay(300);
             await Task.Delay(300); await CaptureMainNativeAsync(path, "settings-channels.png");
             AboutClicked(this, new RoutedEventArgs()); await Task.Delay(400);
             if (AboutPanel.Visibility != Visibility.Visible || _page != "about") throw new InvalidOperationException("关于页面导航失败");
@@ -278,7 +279,7 @@ public sealed partial class MainWindow
             ShowPage("settings"); await Task.Delay(400);
             await CaptureMainNativeAsync(path, "settings-" + suffix + ".png");
             AboutClicked(this, new RoutedEventArgs()); await Task.Delay(300);
-            if (_page != "about" || AboutPanel.Visibility != Visibility.Visible || !AboutVersion.Text.Contains("0.12.1")) throw new IOException("关于导航或版本异常");
+            if (_page != "about" || AboutPanel.Visibility != Visibility.Visible || !AboutVersion.Text.Contains(typeof(MainWindow).Assembly.GetName().Version!.ToString(3))) throw new IOException("关于导航或版本异常");
             await CaptureMainNativeAsync(path, "about-" + suffix + ".png");
             ResizeLogical(820, 940); await Task.Delay(300);
             if (Grid.GetRow((FrameworkElement)AboutFeatures.Children[1]) != 1) throw new IOException("关于未切换单列");
@@ -297,6 +298,42 @@ public sealed partial class MainWindow
         if (Fans.WriteRequests != 0 || _presetRequests != 0) throw new IOException("页面测试意外请求控制");
         await File.WriteAllTextAsync(Path.Combine(path, "ui-smoke.json"), JsonSerializer.Serialize(new { Passed = true, Scope = "SettingsAndAboutOnly", LightAndDarkThemesVerified = true,
             SettingsAndAboutNavigationVerified = true, SettingsAndAboutResponsiveLayoutVerified = true, SamplingControlsVerified = true, FanFirmwareWriteRequestsInSmoke = Fans.WriteRequests, PresetWriteRequestsInSmoke = _presetRequests }, new JsonSerializerOptions { WriteIndented = true }));
+    }
+    private async Task VerifyNavigationAsync(string path)
+    {
+        ResizeLogical(1100, 940); await Task.Delay(400);
+        Windows.Foundation.Point? position = null;
+        foreach (string page in new[] { "overview", "device", "fans", "settings", "channels", "about" })
+        {
+            ShowPage(page); await Task.Delay(350);
+            if (PageContent.Opacity < .99 || Math.Abs(((Microsoft.UI.Xaml.Media.TranslateTransform)PageContent.RenderTransform).Y) > .1) throw new IOException("页面动画结束后状态未复原");
+            if (page is "overview" or "device" or "fans")
+            {
+                var point = RefreshButton.TransformToVisual(Root).TransformPoint(new());
+                if (position is { } first && (Math.Abs(first.X - point.X) > 1 || Math.Abs(first.Y - point.Y) > 1)) throw new IOException("三个页面刷新按钮位置不一致");
+                position = point;
+                if (RefreshButton.Visibility != Visibility.Visible || RefreshButton.ActualWidth != 40 || RefreshButton.ActualHeight != 40) throw new IOException("刷新按钮尺寸或可见性异常");
+            }
+            if (page == "fans")
+            {
+                if (UpdateLabel.Text != "调整风扇温度控制") throw new IOException("散热副标题不正确");
+                Fans.PreviewBusyForSmoke(true);
+                if (!Fans.BusyVisibleForSmoke || RefreshButton.IsEnabled) throw new IOException("切换加载反馈或刷新互锁异常");
+                await Task.Delay(400); await CaptureMainNativeAsync(path, "fans-loading-preview.png");
+                Fans.PreviewBusyForSmoke(false);
+            }
+            if (page == "channels" && ChannelsPanel.Visibility != Visibility.Visible) throw new IOException("读取通道未独立显示");
+            await CaptureMainNativeAsync(path, page + ".png");
+        }
+        BackToSettingsClicked(this, new RoutedEventArgs());
+        if (_page != "settings") throw new IOException("返回设置失败");
+        ThemeChooser.SelectedIndex = 1; await Task.Delay(350); await CaptureMainNativeAsync(path, "settings-light.png");
+        ShowPage("channels"); ResizeLogical(820, 940); await Task.Delay(400); await CaptureMainNativeAsync(path, "channels-narrow.png");
+        ShowPage("fans"); await Task.Delay(400); await CaptureMainNativeAsync(path, "fans-narrow.png");
+        if (Fans.WriteRequests != 0 || _presetRequests != 0) throw new IOException("界面验证发生控制写入请求");
+        await File.WriteAllTextAsync(Path.Combine(path, "ui-smoke.json"), JsonSerializer.Serialize(new { Passed = true, Scope = "NavigationAndFeedbackOnly", SharedRefreshGeometryVerified = true,
+            ChannelsPageNavigationVerified = true, FanBusyPreviewVerified = true, PageTransitionEndStateVerified = true, WindowsAnimationsEnabled = new Windows.UI.ViewManagement.UISettings().AnimationsEnabled,
+            FanTelemetryAvailableAtEnd = Fans.ReadyForSmoke, FanFirmwareWriteRequestsInSmoke = Fans.WriteRequests, PresetWriteRequestsInSmoke = _presetRequests }, new JsonSerializerOptions { WriteIndented = true }));
     }
     private async Task CaptureAsync(string directory, string name)
         => await CaptureElementAsync(Root, directory, name);
